@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dijital CEO | Yapay Zeka Asistanı</title>
+    <meta name="description" content="KOBİ'ler için geliştirilmiş yapay zeka tabanlı dijital asistan.">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Markdown Parser for AI Responses -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        bg: {
+                            main: '#020617', // Slate 950
+                            card: '#0f172a', // Slate 900
+                            hover: '#1e293b', // Slate 800
+                        },
+                        brand: {
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            glow: '#3b82f6',
+                        },
+                        accent: {
+                            400: '#22d3ee',
+                            500: '#06b6d4',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                        'float': 'float 6s ease-in-out infinite',
+                        'scan': 'scan 4s linear infinite',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'typewriter': 'typewriter 2s steps(40, end) 1s 1 normal both',
+                        'blink': 'blink 1s step-end infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(59, 130, 246, 0.2), 0 0 10px rgba(59, 130, 246, 0.2)' },
+                            '100%': { boxShadow: '0 0 20px rgba(37, 99, 235, 0.6), 0 0 30px rgba(37, 99, 235, 0.4)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        scan: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(100%)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        typewriter: {
+                            'from': { width: '0' },
+                            'to': { width: '100%' }
+                        },
+                        blink: {
+                            'from, to': { borderColor: 'transparent' },
+                            '50%': { borderColor: '#60a5fa' }
+                        }
+                    },
+                    backgroundImage: {
+                        'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #020617;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        .bg-grid {
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at center, black, transparent 80%);
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Sector Button Styles */
+        .sector-button {
+            transition: all 0.3s ease;
+        }
+        .active-sector {
+            background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%) !important;
+            color: white !important;
+            border-color: transparent !important;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* View Transition */
+        .page-view {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .page-view.active {
+            display: block;
+            opacity: 1;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Markdown Styles for AI Response */
+        .ai-message strong { color: #60a5fa; font-weight: 700; }
+        .ai-message ul { list-style-type: disc; margin-left: 1.2em; margin-top: 0.5em; margin-bottom: 0.5em; }
+        .ai-message p { margin-bottom: 0.5em; }
+
+        /* Dropdown Styles */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 240px;
+            z-index: 60;
+            padding-top: 0.5rem;
+        }
+        .group:hover .dropdown-content {
+            display: block;
+        }
+        
+        /* Pricing Table Styles */
+        .check-icon { @apply w-5 h-5 text-green-400 mx-auto; }
+        .dash-icon { @apply w-5 h-5 text-slate-600 mx-auto; }
+        
+        /* Scrollbar for chat */
+        #demo-chat-history::-webkit-scrollbar { width: 6px; }
+        #demo-chat-history::-webkit-scrollbar-track { background: transparent; }
+        #demo-chat-history::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+        /* Video Background Container */
+        .video-bg-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            border-radius: 1rem;
+        }
+        .video-bg {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4; /* Darken video */
+            filter: blur(2px) brightness(0.6);
+            transition: all 0.5s ease;
+        }
+
+        /* Main Hero Video Background */
+        .hero-video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.6;
+            filter: brightness(0.4);
+        }
+        
+        /* Ensure content is above video */
+        .hero-content {
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-brand-500 selection:text-white relative">
+
+    <!-- Global Background Grid Animation (Visible on non-video pages) -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <div class="absolute inset-0 bg-grid-pattern bg-grid opacity-20"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-panel border-b-0 top-0 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <a href="#" onclick="navigateTo('home')" class="flex-shrink-0 flex items-center gap-3 group relative z-50">
+                    <img src="images/WhatsApp Image 2025-12-30 at 16.11.322.jpeg" alt="Dijital CEO Logo" class="w-12 h-12 rounded-lg object-cover shadow-lg shadow-brand-500/30 group-hover:shadow-brand-500/50 transition">
+                    <span class="font-bold text-2xl tracking-tight text-white font-mono">Dijital<span class="text-brand-400">CEO_</span></span>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-1 p-1 bg-slate-900/50 backdrop-blur rounded-xl border border-white/5">
+                    <button onclick="navigateTo('home')" id="nav-home" class="nav-item px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition relative overflow-hidden group">
+                        <span class="relative z-10">Ana Sayfa</span>
+                        <div class="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                    </button>
+                    
+                    <!-- Ürünler Dropdown -->
+                    <div class="relative group">
+                        <button class="nav-item px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition flex items-center gap-1">
+                            <span class="relative z-10">Ürünler</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <div class="glass-panel rounded-xl border border-slate-700/50 overflow-hidden py-2 bg-slate-900/95 backdrop-blur-xl">
+                                <button onclick="navigateTo('dijitalceo')" class="block w-full text-left px-4 py-3 text-sm text-white hover:bg-brand-600/20 transition flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded bg-brand-500/20 flex items-center justify-center text-brand-400"><i data-lucide="bot" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <div class="font-bold">Dijital CEO</div>
+                                        <div class="text-[10px] text-slate-400">Yapay Zeka İş Asistanı</div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="navigateTo('cozumler')" id="nav-cozumler" class="nav-item px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition relative overflow-hidden group">
+                        <span class="relative z-10">Çözümler</span>
+                        <div class="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                    </button>
+                    <button onclick="navigateTo('sektorler')" id="nav-sektorler" class="nav-item px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition relative overflow-hidden group">
+                        <span class="relative z-10">Sektörler</span>
+                        <div class="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                    </button>
+                    
+                    <!-- Kurumsal Dropdown -->
+                    <div class="relative group">
+                        <button class="nav-item px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition flex items-center gap-1">
+                            <span class="relative z-10">Kurumsal</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                        <div class="dropdown-content">
+                            <div class="glass-panel rounded-xl border border-slate-700/50 overflow-hidden py-2 bg-slate-900/95 backdrop-blur-xl">
+                                <button onclick="navigateTo('hakkimizda')" class="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/10">Hakkımızda</button>
+                                <button onclick="navigateTo('yatirimci')" class="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/10">Yatırımcı İlişkileri</button>
+                                <button onclick="navigateTo('kimlik')" class="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/10">Kurumsal Kimlik</button>
+                                <button onclick="navigateTo('kilometre')" class="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/10">Kilometre Taşlarımız</button>
+                                <button onclick="navigateTo('surdurebilirlik')" class="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/10">Sürdürebilirlik</button>
+                                <button onclick="navigateTo('kalite')" class="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/10">Kalite Yaklaşımı</button>
+                                <button onclick="navigateTo('is-ortaklari')" class="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/10">İş Ortaklarımız</button>
+                                <button onclick="navigateTo('etik')" class="block w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/10">Etik İlkeler & Uyum</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="navigateTo('iletisim')" id="nav-iletisim" class="nav-item px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white transition relative overflow-hidden group">
+                        <span class="relative z-10">İletişim</span>
+                        <div class="absolute inset-0 bg-white/5 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                    </button>
+                </div>
+
+                <!-- CTA Button -->
+                <div class="hidden md:flex relative group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-brand-600 to-accent-600 rounded-full blur opacity-50 group-hover:opacity-100 transition duration-200"></div>
+                    <a href="https://wa.me/905320568570?text=Merhaba,%20Dijital%20CEO%20için%20demo%20talebinde%20bulunmak%20istiyorum." target="_blank" class="relative bg-slate-900 text-white px-6 py-2.5 rounded-full font-bold flex items-center gap-2 border border-white/10">
+                        <span>Demo Talebi Gönder</span>
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white focus:outline-none">
+                        <i data-lucide="menu" class="w-8 h-8"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-slate-800 absolute w-full z-40 max-h-[80vh] overflow-y-auto">
+            <div class="px-4 pt-4 pb-6 space-y-2">
+                <button onclick="navigateTo('home'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-white/5">Ana Sayfa</button>
+                
+                <!-- Mobile Products -->
+                <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Ürünler</div>
+                <button onclick="navigateTo('dijitalceo'); toggleMobileMenu()" class="block w-full text-left pl-8 pr-4 py-2 rounded-lg text-sm font-medium text-brand-400 hover:text-white hover:bg-white/5 font-bold">Dijital CEO</button>
+
+                <button onclick="navigateTo('cozumler'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-white/5">Çözümler</button>
+                <button onclick="navigateTo('sektorler'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-white/5">Sektörler</button>
+                
+                <div class="px-4 py-2 text-xs font-bold text-slate-500 uppercase tracking-wider">Kurumsal</div>
+                <div class="pl-4 border-l border-white/10 space-y-1">
+                    <button onclick="navigateTo('hakkimizda'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5">Hakkımızda</button>
+                    <button onclick="navigateTo('yatirimci'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5">Yatırımcı İlişkileri</button>
+                    <button onclick="navigateTo('kimlik'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5">Kurumsal Kimlik</button>
+                    <button onclick="navigateTo('kilometre'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5">Kilometre Taşlarımız</button>
+                    <button onclick="navigateTo('surdurebilirlik'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5">Sürdürebilirlik</button>
+                    <button onclick="navigateTo('kalite'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5">Kalite Yaklaşımı</button>
+                    <button onclick="navigateTo('is-ortaklari'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5">İş Ortaklarımız</button>
+                    <button onclick="navigateTo('etik'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5">Etik İlkeler & Uyum</button>
+                </div>
+                
+                <button onclick="navigateTo('iletisim'); toggleMobileMenu()" class="block w-full text-left px-4 py-3 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-white/5">İletişim</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENT CONTAINER -->
+    <main class="pt-24 min-h-screen relative z-10">
+        
+        <!-- ================= PAGE: HOME (WITH LIVE GEMINI API CHAT & VIDEO BACKGROUND) ================= -->
+        <div id="view-home" class="page-view active">
+            <!-- Video Background -->
+            <video autoplay muted loop playsinline class="hero-video-bg">
+                <source src="https://videos.pexels.com/video-files/3129671/3129671-hd_1920_1080_30fps.mp4" type="video/mp4">
+            </video>
+            
+            <section class="relative pt-10 pb-20 lg:pt-20 lg:pb-32 hero-content">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <!-- Hero Text -->
+                    <div class="text-center max-w-5xl mx-auto mb-16">
+                        
+                        <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight leading-none mb-8 drop-shadow-2xl">
+                            Şirketinizin <br>
+                            <span class="gradient-text font-mono">Dijital Beyni</span>
+                        </h1>
+                        <p class="text-lg md:text-xl text-slate-200 mb-10 leading-relaxed max-w-2xl mx-auto drop-shadow-md">
+                            Veri yığınları arasında kaybolmayın. Yapay zeka, finansal riskleri öngörsün, satışları tahminlesin ve operasyonu yönetsin.
+                        </p>
+                        
+                        <div class="flex flex-col sm:flex-row gap-5 justify-center items-center">
+                            <button onclick="navigateTo('dijitalceo')" class="group relative px-8 py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-bold text-lg transition overflow-hidden shadow-lg shadow-brand-600/25">
+                                <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-scan"></div>
+                                <span class="flex items-center gap-2">Ürünleri İncele <i data-lucide="chevron-right" class="w-5 h-5"></i></span>
+                            </button>
+                            <button onclick="navigateTo('cozumler')" class="px-8 py-4 bg-black/40 backdrop-blur border border-white/20 hover:border-white text-slate-200 hover:text-white rounded-xl font-bold text-lg transition flex items-center justify-center gap-2">
+                                <i data-lucide="terminal" class="w-5 h-5"></i> Özellikler
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PROMPT BASED LIVE DEMO VISUAL (FUNCTIONAL CHAT) -->
+                    <div class="relative mx-auto w-full max-w-4xl animate-float">
+                        <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative h-[500px] flex flex-col bg-slate-900/90">
+                             <!-- Chat Header -->
+                             <div class="h-12 bg-slate-900/80 border-b border-white/5 flex items-center justify-between px-4">
+                                <div class="flex items-center gap-2 text-slate-300 font-mono text-sm">
+                                    <div class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e]"></div> Dijital CEO - Canlı Mod
+                                </div>
+                                
+                                <!-- Tab Switcher -->
+                                <div class="flex bg-slate-800 rounded-lg p-1 gap-1">
+                                    <button onclick="switchDemoTab('chat')" id="tab-chat" class="px-3 py-1 rounded text-xs font-medium bg-brand-600 text-white transition-all">Chat</button>
+                                    <button onclick="switchDemoTab('reports')" id="tab-reports" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1">
+                                        <i data-lucide="bar-chart-3" class="w-3 h-3"></i> Raporlar
+                                    </button>
+                                </div>
+                             </div>
+                             
+                             <!-- Chat View -->
+                             <div id="demo-view-chat" class="flex flex-col h-full overflow-hidden">
+                                 <!-- Chat Area -->
+                                 <div id="demo-chat-history" class="flex-1 p-6 space-y-4 overflow-y-auto font-mono text-sm relative scroll-smooth">
+                                     <!-- Welcome Message -->
+                                     <div class="flex items-start gap-3">
+                                         <div class="w-8 h-8 rounded bg-brand-600/20 flex items-center justify-center text-brand-400 shrink-0"><i data-lucide="bot" class="w-5 h-5"></i></div>
+                                         <div class="bg-white/5 p-3 rounded-lg rounded-tl-none border border-white/5 text-slate-300 max-w-[90%]">
+                                             Hoş geldiniz. Şirket verilerinizi analiz ettim. Size nasıl yardımcı olabilirim? Örneğin: "Nakit akışını nasıl iyileştiririm?" veya "Stok fazlası olan ürünleri listele."
+                                         </div>
+                                     </div>
+                                 </div>
+
+                                 <!-- Input Area (Functional) -->
+                                 <div class="p-4 bg-slate-900/50 border-t border-white/5">
+                                     <form id="demo-chat-form" class="relative">
+                                         <input type="text" id="demo-chat-input" placeholder="Dijital CEO'ya bir soru sorun..." class="w-full bg-slate-800 border border-slate-700 rounded-lg py-3 px-4 text-slate-200 focus:outline-none focus:border-brand-500 transition-colors placeholder:text-slate-600">
+                                         <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-brand-500 hover:text-brand-400 p-2">
+                                             <i data-lucide="send" class="w-5 h-5"></i>
+                                         </button>
+                                     </form>
+                                 </div>
+                             </div>
+
+                             <!-- Reports View (Redesigned) -->
+                             <div id="demo-view-reports" class="hidden h-full w-full bg-slate-900 flex flex-col">
+                                 <!-- Report Toolbar -->
+                                 <div class="h-10 border-b border-white/5 bg-slate-800/50 flex items-center px-4 justify-between">
+                                     <div class="flex gap-2">
+                                         <div class="px-3 py-1 rounded bg-brand-500/20 text-brand-300 text-[10px] font-bold border border-brand-500/30">FİNANS</div>
+                                         <div class="px-3 py-1 rounded bg-white/5 text-slate-400 text-[10px] font-bold hover:bg-white/10 cursor-pointer">SATIŞ</div>
+                                         <div class="px-3 py-1 rounded bg-white/5 text-slate-400 text-[10px] font-bold hover:bg-white/10 cursor-pointer">İK</div>
+                                     </div>
+                                     <div class="text-[10px] text-slate-500 font-mono">SON GÜNCELLEME: 14:02</div>
+                                 </div>
+
+                                 <!-- Report Content -->
+                                 <div class="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
+                                     <!-- Top KPIs -->
+                                     <div class="grid grid-cols-3 gap-3 mb-4">
+                                         <div class="bg-slate-800/50 p-3 rounded-lg border border-white/5">
+                                             <div class="text-[10px] text-slate-400 mb-1">Toplam Ciro</div>
+                                             <div class="text-lg font-bold text-white">₺4.2M</div>
+                                             <div class="text-[10px] text-green-400 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +18%</div>
+                                         </div>
+                                         <div class="bg-slate-800/50 p-3 rounded-lg border border-white/5">
+                                             <div class="text-[10px] text-slate-400 mb-1">Net Kâr</div>
+                                             <div class="text-lg font-bold text-white">₺850K</div>
+                                             <div class="text-[10px] text-green-400 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +12%</div>
+                                         </div>
+                                         <div class="bg-slate-800/50 p-3 rounded-lg border border-white/5">
+                                             <div class="text-[10px] text-slate-400 mb-1">Giderler</div>
+                                             <div class="text-lg font-bold text-white">₺1.1M</div>
+                                             <div class="text-[10px] text-red-400 flex items-center gap-1"><i data-lucide="trending-down" class="w-3 h-3"></i> -5%</div>
+                                         </div>
+                                     </div>
+
+                                     <!-- Main Chart Area -->
+                                     <div class="bg-slate-800/30 p-4 rounded-xl border border-white/5 mb-4 relative overflow-hidden group">
+                                         <div class="flex justify-between items-center mb-4">
+                                             <h4 class="text-xs font-bold text-slate-300">Aylık Nakit Akışı</h4>
+                                             <i data-lucide="more-horizontal" class="w-4 h-4 text-slate-500"></i>
+                                         </div>
+                                         <!-- Simulated Bar Chart with CSS -->
+                                         <div class="flex items-end justify-between h-32 gap-2 px-2">
+                                             <!-- Bars -->
+                                             <div class="w-full bg-slate-700/50 h-[40%] rounded-t-sm hover:bg-brand-500/50 transition-colors relative group/bar">
+                                                 <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-[9px] text-white px-1 rounded opacity-0 group-hover/bar:opacity-100 transition">Oca</div>
+                                             </div>
+                                             <div class="w-full bg-slate-700/50 h-[55%] rounded-t-sm hover:bg-brand-500/50 transition-colors relative group/bar">
+                                                 <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-[9px] text-white px-1 rounded opacity-0 group-hover/bar:opacity-100 transition">Şub</div>
+                                             </div>
+                                             <div class="w-full bg-slate-700/50 h-[45%] rounded-t-sm hover:bg-brand-500/50 transition-colors relative group/bar">
+                                                 <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-[9px] text-white px-1 rounded opacity-0 group-hover/bar:opacity-100 transition">Mar</div>
+                                             </div>
+                                             <div class="w-full bg-slate-700/50 h-[70%] rounded-t-sm hover:bg-brand-500/50 transition-colors relative group/bar">
+                                                 <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-[9px] text-white px-1 rounded opacity-0 group-hover/bar:opacity-100 transition">Nis</div>
+                                             </div>
+                                             <div class="w-full bg-brand-500 h-[85%] rounded-t-sm shadow-[0_0_10px_rgba(59,130,246,0.5)] relative">
+                                                 <div class="absolute -top-5 left-1/2 -translate-x-1/2 text-[9px] text-brand-300 font-bold">May</div>
+                                             </div>
+                                             <!-- Forecast Bars (Dashed border look) -->
+                                             <div class="w-full border-x border-t border-dashed border-slate-600 h-[90%] rounded-t-sm opacity-50 relative group/bar">
+                                                 <div class="absolute top-2 left-1/2 -translate-x-1/2 text-[8px] text-slate-400 rotate-90 whitespace-nowrap">Tahmin</div>
+                                             </div>
+                                             <div class="w-full border-x border-t border-dashed border-slate-600 h-[95%] rounded-t-sm opacity-50"></div>
+                                         </div>
+                                         <!-- X Axis Line -->
+                                         <div class="h-px bg-white/10 mt-1"></div>
+                                     </div>
+
+                                     <!-- Breakdown & Regional Sales -->
+                                     <div class="grid grid-cols-2 gap-4">
+                                         <!-- Donut Chart Simulation -->
+                                         <div class="bg-slate-800/30 p-3 rounded-xl border border-white/5">
+                                             <h4 class="text-[10px] font-bold text-slate-300 mb-3">Gider Dağılımı</h4>
+                                             <div class="relative w-24 h-24 mx-auto">
+                                                 <svg viewBox="0 0 36 36" class="w-full h-full rotate-[-90deg]">
+                                                     <!-- Ring Background -->
+                                                     <path class="text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.8" />
+                                                     <!-- Segment 1 (Blue) -->
+                                                     <path class="text-brand-500" stroke-dasharray="40, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.8" />
+                                                     <!-- Segment 2 (Purple) -->
+                                                     <path class="text-purple-500" stroke-dasharray="25, 100" stroke-dashoffset="-40" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.8" />
+                                                 </svg>
+                                                 <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                                     <span class="text-xs font-bold text-white">40%</span>
+                                                     <span class="text-[8px] text-slate-400">Personel</span>
+                                                 </div>
+                                             </div>
+                                             <div class="mt-2 flex justify-center gap-2">
+                                                 <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-brand-500"></div><span class="text-[8px] text-slate-400">Personel</span></div>
+                                                 <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-purple-500"></div><span class="text-[8px] text-slate-400">Pazarlama</span></div>
+                                             </div>
+                                         </div>
+
+                                         <!-- Top Products List -->
+                                         <div class="bg-slate-800/30 p-3 rounded-xl border border-white/5">
+                                             <h4 class="text-[10px] font-bold text-slate-300 mb-3">En Çok Satanlar</h4>
+                                             <div class="space-y-2">
+                                                 <div class="flex justify-between items-center text-[10px]">
+                                                     <span class="text-slate-300">Ürün A</span>
+                                                     <div class="flex items-center gap-1">
+                                                         <div class="w-12 h-1.5 bg-slate-700 rounded-full overflow-hidden"><div class="h-full bg-green-500 w-[80%]"></div></div>
+                                                         <span class="text-white">80%</span>
+                                                     </div>
+                                                 </div>
+                                                 <div class="flex justify-between items-center text-[10px]">
+                                                     <span class="text-slate-300">Ürün B</span>
+                                                     <div class="flex items-center gap-1">
+                                                         <div class="w-12 h-1.5 bg-slate-700 rounded-full overflow-hidden"><div class="h-full bg-green-500 w-[60%]"></div></div>
+                                                         <span class="text-white">60%</span>
+                                                     </div>
+                                                 </div>
+                                                 <div class="flex justify-between items-center text-[10px]">
+                                                     <span class="text-slate-300">Ürün C</span>
+                                                     <div class="flex items-center gap-1">
+                                                         <div class="w-12 h-1.5 bg-slate-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-500 w-[45%]"></div></div>
+                                                         <span class="text-white">45%</span>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 
+                                 <!-- Footer Action -->
+                                 <div class="p-3 border-t border-white/5 bg-slate-900/50 flex justify-center">
+                                     <button class="text-xs text-brand-400 hover:text-white flex items-center gap-1 transition">
+                                         <i data-lucide="maximize-2" class="w-3 h-3"></i> Detaylı Raporu Aç (Power BI)
+                                     </button>
+                                 </div>
+                             </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE: DIJITAL CEO (PRODUCT) ================= -->
+        <div id="view-dijitalceo" class="page-view">
+            <section class="py-20 relative overflow-hidden">
+                <!-- Product Page Image Background -->
+                <div class="absolute top-0 left-0 w-full h-[600px] overflow-hidden -z-10">
+                    <img src="images/WhatsApp Image 2025-12-30 at 16.11.32.jpeg" alt="Background" class="w-full h-full object-cover opacity-30 filter blur-sm">
+                    <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/90 to-[#020617]"></div>
+                </div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center max-w-4xl mx-auto mb-16 relative z-10">
+                        <div class="inline-block mb-4 px-4 py-1 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-400 text-xs font-bold tracking-widest uppercase backdrop-blur-md">Premium Ürün</div>
+                        <h1 class="text-4xl md:text-6xl font-black text-white mb-6 drop-shadow-2xl">Dijital CEO Platformu</h1>
+                        <p class="text-xl text-slate-300 drop-shadow-md mb-10">Tüm departmanlarınızı tek bir yapay zeka beyni ile yönetin.</p>
+                    </div>
+
+                    <!-- Modules Grid (Detailed with Visuals) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24 relative z-10">
+                        
+                        <!-- 1. Satış Yönetimi -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 group-hover:scale-110 transition"><i data-lucide="trending-up" class="w-6 h-6"></i></div>
+                                <span class="bg-blue-500/10 text-blue-300 text-[10px] px-2 py-1 rounded border border-blue-500/20">AI Tahmin</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Satış Yönetimi</h3>
+                            <p class="text-sm text-slate-400 mb-6">"Hangi müşteri alım yapacak?" sorusuna yapay zeka ile cevap verin. Fırsatları kaçırmayın.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Satış Artırma Önerileri</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Çapraz Satış Fırsatları</li>
+                            </ul>
+                        </div>
+
+                        <!-- 2. Finans & Muhasebe -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center text-green-400 group-hover:scale-110 transition"><i data-lucide="banknote" class="w-6 h-6"></i></div>
+                                <span class="bg-green-500/10 text-green-300 text-[10px] px-2 py-1 rounded border border-green-500/20">Risk Analizi</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Finans & Muhasebe</h3>
+                            <p class="text-sm text-slate-400 mb-6">Gelecekteki nakit akışınızı bugünden görün. Tahsilat risklerini minimize edin.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Nakit Akışı Tahmini</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Otomatik Fatura Kontrolü</li>
+                            </ul>
+                        </div>
+
+                        <!-- 3. İnsan Kaynakları -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center text-pink-400 group-hover:scale-110 transition"><i data-lucide="users" class="w-6 h-6"></i></div>
+                                <span class="bg-pink-500/10 text-pink-300 text-[10px] px-2 py-1 rounded border border-pink-500/20">Verimlilik</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">İnsan Kaynakları (İK)</h3>
+                            <p class="text-sm text-slate-400 mb-6">Çalışan performansını objektif ölçün, ayrılma risklerini (Churn) önceden tespit edin.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Performans Analizi</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Yetkinlik Haritalama</li>
+                            </ul>
+                        </div>
+
+                        <!-- 4. Stok ve Lojistik -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400 group-hover:scale-110 transition"><i data-lucide="package" class="w-6 h-6"></i></div>
+                                <span class="bg-orange-500/10 text-orange-300 text-[10px] px-2 py-1 rounded border border-orange-500/20">Optimizasyon</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Stok ve Lojistik</h3>
+                            <p class="text-sm text-slate-400 mb-6">Stok devir hızını artırın, atıl stokları tespit edin ve siparişleri yapay zeka ile yönetin.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Stok Optimizasyonu</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Tahmine Dayalı Sipariş</li>
+                            </ul>
+                        </div>
+
+                        <!-- 5. Pazarlama -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400 group-hover:scale-110 transition"><i data-lucide="megaphone" class="w-6 h-6"></i></div>
+                                <span class="bg-purple-500/10 text-purple-300 text-[10px] px-2 py-1 rounded border border-purple-500/20">Hedefleme</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Pazarlama</h3>
+                            <p class="text-sm text-slate-400 mb-6">Hedef kitle analizi ve kampanya yönetimi ile en doğru müşteriye ulaşın.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Hedef Kitle Analizi</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Kampanya Yönetimi</li>
+                            </ul>
+                        </div>
+
+                        <!-- 6. Rekabet Analizi -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center text-red-400 group-hover:scale-110 transition"><i data-lucide="swords" class="w-6 h-6"></i></div>
+                                <span class="bg-red-500/10 text-red-300 text-[10px] px-2 py-1 rounded border border-red-500/20">İstihbarat</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Rekabet Analizi</h3>
+                            <p class="text-sm text-slate-400 mb-6">Rakiplerin fiyat ve kampanya stratejilerini izleyin, pazar trendlerini yakalayın.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Pazar Payı Takibi</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Fiyat İzleme</li>
+                            </ul>
+                        </div>
+
+                        <!-- 7. Nakit Akış Yönetimi -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-teal-500/20 rounded-xl flex items-center justify-center text-teal-400 group-hover:scale-110 transition"><i data-lucide="wallet" class="w-6 h-6"></i></div>
+                                <span class="bg-teal-500/10 text-teal-300 text-[10px] px-2 py-1 rounded border border-teal-500/20">Likidite</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Nakit Akış Yönetimi</h3>
+                            <p class="text-sm text-slate-400 mb-6">Çek/senet vadelerini takip edin, tahsilat risklerini öngörün ve nakit dengesini koruyun.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Vade Takibi</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Tahsilat Riski Analizi</li>
+                            </ul>
+                        </div>
+
+                        <!-- 8. Gelen-Giden Faturalar -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400 group-hover:scale-110 transition"><i data-lucide="file-text" class="w-6 h-6"></i></div>
+                                <span class="bg-indigo-500/10 text-indigo-300 text-[10px] px-2 py-1 rounded border border-indigo-500/20">Otomasyon</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Fatura Yönetimi</h3>
+                            <p class="text-sm text-slate-400 mb-6">Faturaları otomatik kontrol edin, hataları tespit edin ve ödeme planlarını optimize edin.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Otomatik Kontrol</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Ödeme Planlama</li>
+                            </ul>
+                        </div>
+
+                        <!-- 9. Tedarikçi Yönetimi -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center text-yellow-400 group-hover:scale-110 transition"><i data-lucide="truck" class="w-6 h-6"></i></div>
+                                <span class="bg-yellow-500/10 text-yellow-300 text-[10px] px-2 py-1 rounded border border-yellow-500/20">Tedarik</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Tedarikçi Yönetimi</h3>
+                            <p class="text-sm text-slate-400 mb-6">Tedarikçi performansını ölçün, riskleri önceden görün ve en uygun tedarikçiyi seçin.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Performans Değerlendirmesi</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Risk Tespiti</li>
+                            </ul>
+                        </div>
+
+                        <!-- 10. Satınalma -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center text-cyan-400 group-hover:scale-110 transition"><i data-lucide="shopping-cart" class="w-6 h-6"></i></div>
+                                <span class="bg-cyan-500/10 text-cyan-300 text-[10px] px-2 py-1 rounded border border-cyan-500/20">Maliyet</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Satınalma</h3>
+                            <p class="text-sm text-slate-400 mb-6">Siparişleri otomatik yönetin, bütçeyi kontrol edin ve en iyi fiyatla alım yapın.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Otomatik Sipariş</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Bütçe Takibi</li>
+                            </ul>
+                        </div>
+
+                        <!-- 11. Tahsilat -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 group-hover:scale-110 transition"><i data-lucide="hand-coins" class="w-6 h-6"></i></div>
+                                <span class="bg-emerald-500/10 text-emerald-300 text-[10px] px-2 py-1 rounded border border-emerald-500/20">Alacak</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Tahsilat</h3>
+                            <p class="text-sm text-slate-400 mb-6">Gecikmiş alacakları takip edin, riskli müşterileri belirleyin ve tahsilatı hızlandırın.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Otomatik Hatırlatma</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Riskli Müşteri Tespiti</li>
+                            </ul>
+                        </div>
+
+                        <!-- 12. Kasa / Banka / Cari -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400 group-hover:scale-110 transition"><i data-lucide="landmark" class="w-6 h-6"></i></div>
+                                <span class="bg-sky-500/10 text-sky-300 text-[10px] px-2 py-1 rounded border border-sky-500/20">Hesap</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Kasa & Banka & Cari</h3>
+                            <p class="text-sm text-slate-400 mb-6">Tüm hesap hareketlerini tek ekrandan izleyin, anlık bakiye ve risk durumunu görün.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Gerçek Zamanlı Takip</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Otomatik Entegrasyon</li>
+                            </ul>
+                        </div>
+
+                        <!-- 13. Bayi / Kanal Yönetimi -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-rose-500/20 rounded-xl flex items-center justify-center text-rose-400 group-hover:scale-110 transition"><i data-lucide="network" class="w-6 h-6"></i></div>
+                                <span class="bg-rose-500/10 text-rose-300 text-[10px] px-2 py-1 rounded border border-rose-500/20">B2B</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Bayi & Kanal Yönetimi</h3>
+                            <p class="text-sm text-slate-400 mb-6">Bayi performansını ölçün, sipariş ve stok süreçlerini entegre edin.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Performans Analizi</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Sipariş Takibi</li>
+                            </ul>
+                        </div>
+
+                        <!-- 14. CRM -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-violet-500/20 rounded-xl flex items-center justify-center text-violet-400 group-hover:scale-110 transition"><i data-lucide="heart-handshake" class="w-6 h-6"></i></div>
+                                <span class="bg-violet-500/10 text-violet-300 text-[10px] px-2 py-1 rounded border border-violet-500/20">Müşteri</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">CRM</h3>
+                            <p class="text-sm text-slate-400 mb-6">Müşteri ilişkilerini derinleştirin, segmentasyon yapın ve satış fırsatlarını yönetin.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Müşteri Segmentasyonu</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Fırsat Yönetimi</li>
+                            </ul>
+                        </div>
+
+                        <!-- 15. Üretim (MRP) -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-brand-500/50 transition group">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center text-amber-400 group-hover:scale-110 transition"><i data-lucide="factory" class="w-6 h-6"></i></div>
+                                <span class="bg-amber-500/10 text-amber-300 text-[10px] px-2 py-1 rounded border border-amber-500/20">Verim</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-3">Üretim (MRP)</h3>
+                            <p class="text-sm text-slate-400 mb-6">Üretim planlamasını optimize edin, kapasite kullanımını artırın ve maliyetleri düşürün.</p>
+                            <ul class="text-xs text-slate-500 space-y-2">
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Üretim Planlama</li>
+                                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3 h-3 text-green-500"></i> Kapasite Kullanımı</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Pricing Table -->
+                    <div class="mb-24">
+                        <div class="text-center mb-12">
+                            <h2 class="text-3xl font-bold text-white mb-4">Şeffaf Fiyatlandırma</h2>
+                            <p class="text-slate-400">İhtiyacınıza uygun paketi seçin, hemen başlayın.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                            <!-- Basic Plan -->
+                            <div class="glass-panel rounded-2xl p-8 border border-white/5 flex flex-col relative overflow-hidden">
+                                <h3 class="text-xl font-bold text-slate-300 mb-2">Basic</h3>
+                                <div class="text-4xl font-bold text-white mb-1">₺18.000</div>
+                                <div class="text-sm text-slate-500 mb-6">Aylık Ödeme (Yıllık 180.000 TL)</div>
+                                <div class="w-full h-px bg-white/10 mb-6"></div>
+                                <ul class="space-y-4 mb-8 text-sm text-slate-300 flex-1">
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Finans ve Muhasebe</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Kasa / Banka / Cari</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Tahsilat & Satınalma</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Tedarikçi Yönetimi</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Nakit Akış Yönetimi</li>
+                                    <li class="flex gap-3 text-slate-600"><i data-lucide="minus" class="w-5 h-5"></i> Satış & Pazarlama</li>
+                                    <li class="flex gap-3 text-slate-600"><i data-lucide="minus" class="w-5 h-5"></i> CRM & İK</li>
+                                    <li class="flex gap-3 border-t border-white/5 pt-3"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i> 2 Kullanıcı</li>
+                                    <li class="flex gap-3"><i data-lucide="layout" class="w-5 h-5 text-slate-400"></i> 10 Rapor Ekranı</li>
+                                </ul>
+                                <button class="w-full py-3 rounded-lg border border-slate-600 text-white hover:bg-white/5 transition">Seç</button>
+                            </div>
+
+                            <!-- Premium Plan (Popular) -->
+                            <div class="glass-panel rounded-2xl p-8 border border-brand-500/50 flex flex-col relative overflow-hidden transform scale-105 shadow-2xl shadow-brand-500/20 z-10 bg-slate-900/80">
+                                <div class="absolute top-0 right-0 bg-brand-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">POPÜLER</div>
+                                <h3 class="text-xl font-bold text-brand-400 mb-2">Premium</h3>
+                                <div class="text-4xl font-bold text-white mb-1">₺35.000</div>
+                                <div class="text-sm text-slate-500 mb-6">Aylık Ödeme (Yıllık 360.000 TL)</div>
+                                <div class="w-full h-px bg-white/10 mb-6"></div>
+                                <ul class="space-y-4 mb-8 text-sm text-slate-200 flex-1">
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> <strong>Tüm Basic Özellikleri</strong></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Satış Yönetimi</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Stok ve Lojistik</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Pazarlama</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Rekabet Analizi</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Bayi / Kanal Yönetimi</li>
+                                    <li class="flex gap-3 text-slate-600"><i data-lucide="minus" class="w-5 h-5"></i> CRM & İK</li>
+                                    <li class="flex gap-3 border-t border-white/5 pt-3"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i> 3 Kullanıcı</li>
+                                    <li class="flex gap-3"><i data-lucide="layout" class="w-5 h-5 text-slate-400"></i> 18 Rapor Ekranı</li>
+                                </ul>
+                                <button class="w-full py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white transition font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)]">Hemen Başla</button>
+                            </div>
+
+                            <!-- Enterprise Plan -->
+                            <div class="glass-panel rounded-2xl p-8 border border-white/5 flex flex-col relative overflow-hidden">
+                                <h3 class="text-xl font-bold text-accent-400 mb-2">Enterprise</h3>
+                                <div class="text-4xl font-bold text-white mb-1">₺45.000</div>
+                                <div class="text-sm text-slate-500 mb-6">Aylık Ödeme (Yıllık 450.000 TL)</div>
+                                <div class="w-full h-px bg-white/10 mb-6"></div>
+                                <ul class="space-y-4 mb-8 text-sm text-slate-300 flex-1">
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-accent-400"></i> <strong>Tüm Premium Özellikleri</strong></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-accent-400"></i> CRM (Müşteri İlişkileri)</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-accent-400"></i> İnsan Kaynakları (İK)</li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-accent-400"></i> Üretim (MRP)</li>
+                                    <li class="flex gap-3 border-t border-white/5 pt-3"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i> 4 Kullanıcı</li>
+                                    <li class="flex gap-3"><i data-lucide="layout" class="w-5 h-5 text-slate-400"></i> 25 Rapor Ekranı</li>
+                                </ul>
+                                <button class="w-full py-3 rounded-lg border border-slate-600 text-white hover:bg-white/5 transition">Teklif Al</button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-8 text-sm text-slate-500 max-w-2xl mx-auto">
+                            * İlave Rapor Ekranı: 5.000 TL/Yıl | İlave Kullanıcı: 20.000 TL/Yıl | Sözleşme yenilemelerinde TÜFE+5 puan artış uygulanır.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE: SOLUTIONS (UPDATED WITH EDUCATION & CONSULTING) ================= -->
+        <div id="view-cozumler" class="page-view">
+             <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Akıllı <span class="text-brand-400">Çözümler</span></h2>
+                        <p class="text-slate-400 max-w-2xl mx-auto text-lg">İşletmenizin her alanına dokunan teknoloji ve uzmanlık.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Existing Modules (Summary) -->
+                        <div class="glass-panel p-8 rounded-2xl">
+                             <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400"><i data-lucide="cpu" class="w-6 h-6"></i></div>
+                                <h3 class="text-2xl font-bold text-white">Yapay Zeka Modülleri</h3>
+                             </div>
+                             <p class="text-slate-400 mb-4">Finans, Satış, İK ve Üretim süreçleriniz için otonom dijital asistanlar.</p>
+                             <button onclick="navigateTo('dijitalceo')" class="text-brand-400 text-sm font-bold hover:underline">Detayları İncele →</button>
+                        </div>
+
+                        <!-- NEW: Education -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/10 hover:border-yellow-500/30 transition group">
+                             <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center text-yellow-400"><i data-lucide="graduation-cap" class="w-6 h-6"></i></div>
+                                <h3 class="text-2xl font-bold text-white">Eğitim Hizmetleri</h3>
+                             </div>
+                             <p class="text-slate-400 mb-6">Ekibinizi geleceğe hazırlayan uzman eğitim programları.</p>
+                             <ul class="space-y-3">
+                                 <li class="flex items-start gap-3"><i data-lucide="check-circle" class="w-5 h-5 text-yellow-500 shrink-0"></i><div><strong class="text-white block">Kurumsal Otomasyon ve Yapay Zeka Eğitimi</strong></div></li>
+                                 <li class="flex items-start gap-3"><i data-lucide="check-circle" class="w-5 h-5 text-yellow-500 shrink-0"></i><div><strong class="text-white block">İş Zekası Uzmanlığı Power BI Eğitimi</strong></div></li>
+                             </ul>
+                        </div>
+
+                        <!-- NEW: Consultancy -->
+                        <div class="glass-panel p-8 rounded-2xl border border-white/10 hover:border-purple-500/30 transition group md:col-span-2">
+                             <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400"><i data-lucide="briefcase" class="w-6 h-6"></i></div>
+                                <h3 class="text-2xl font-bold text-white">Danışmanlık Hizmetleri</h3>
+                             </div>
+                             <div class="grid md:grid-cols-2 gap-6">
+                                 <div>
+                                     <strong class="text-white text-lg block mb-2">ERP Danışmanlığı</strong>
+                                     <p class="text-slate-400 text-sm">
+                                         Kurumsal Kaynak Planlama (ERP) süreçlerinizin analizi, kurulumu ve optimizasyonu konusunda uçtan uca destek sağlıyoruz. İşletmenizin dijital omurgasını en doğru şekilde kurguluyoruz.
+                                     </p>
+                                 </div>
+                                 <div class="bg-slate-900/50 p-4 rounded-xl border border-white/5">
+                                     <h5 class="text-purple-300 font-bold mb-2">Hizmet Kapsamı</h5>
+                                     <ul class="text-sm text-slate-400 space-y-1">
+                                         <li>• Süreç Analizi ve İyileştirme</li>
+                                         <li>• Yazılım Seçimi ve Entegrasyon</li>
+                                         <li>• Veri Migrasyonu ve Güvenliği</li>
+                                     </ul>
+                                 </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE: SECTORS (UPDATED WITH VIDEO BACKGROUNDS & NEW DESIGN) ================= -->
+        <div id="view-sektorler" class="page-view">
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Sektörünüze Özel <span class="text-brand-400">Dönüşüm</span></h2>
+                        <p class="text-slate-400 text-lg">Yapay zeka kullanılmadığında ne kaybedersiniz? Kullandığınızda ne kazanırsınız?</p>
+                    </div>
+
+                    <!-- Sector Buttons -->
+                    <div id="sector-selector" class="flex flex-wrap justify-center gap-3 md:gap-4 mb-16">
+                        <!-- Javascript will populate this -->
+                    </div>
+
+                    <!-- Dynamic Content Area -->
+                    <div id="sector-content" class="relative min-h-[500px]">
+                        <!-- Javascript will populate this -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ================= PAGE: CONTACT (UPDATED ADDRESSES) ================= -->
+        <div id="view-iletisim" class="page-view">
+             <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                     <div class="text-center mb-16">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">İletişim</h2>
+                        <p class="text-slate-400">Teknoloji merkezlerimizde bizi ziyaret edin.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div class="glass-panel p-8 rounded-2xl">
+                             <form onsubmit="event.preventDefault(); alert('Mesajınız gönderildi!');" class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-400 mb-2">Ad Soyad</label>
+                                    <input type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-400 mb-2">E-posta</label>
+                                    <input type="email" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-400 mb-2">Mesajınız</label>
+                                    <textarea rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition"></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-lg transition">Gönder</button>
+                            </form>
+                        </div>
+                        <div class="space-y-8">
+                            <!-- Merkez Ofis -->
+                            <div class="glass-panel p-6 rounded-xl flex items-start gap-4 border border-brand-500/30">
+                                <div class="p-3 bg-brand-900/30 rounded-lg text-brand-400"><i data-lucide="building" class="w-6 h-6"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-white mb-1">Merkez Ofis</h4>
+                                    <p class="text-slate-400 text-sm leading-relaxed">
+                                        MERKEZ MAH. SEÇKİN SK. Z OFIS NO: 2 -4A İÇ KAPI NO: 95<br>
+                                        KAĞITHANE/ İSTANBUL
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Şube -->
+                            <div class="glass-panel p-6 rounded-xl flex items-start gap-4 border border-white/10">
+                                <div class="p-3 bg-brand-900/30 rounded-lg text-brand-400"><i data-lucide="map-pin" class="w-6 h-6"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-white mb-1">Şube (BTM)</h4>
+                                    <p class="text-slate-400 text-sm leading-relaxed">
+                                        Fulya, Yeşilçimen Sokağı Bağımsız Bölüm 12/430<br>
+                                        34394 Şişli/İstanbul
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- İletişim Bilgileri -->
+                            <div class="glass-panel p-6 rounded-xl flex items-start gap-4 border border-white/10">
+                                <div class="p-3 bg-brand-900/30 rounded-lg text-brand-400"><i data-lucide="mail" class="w-6 h-6"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-white mb-1">E-posta & Telefon</h4>
+                                    <p class="text-slate-400 text-sm">kursatguney@aithink.com.tr</p>
+                                    <p class="text-slate-400 text-sm mt-1">+90 (212) 555 00 00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </section>
+        </div>
+        <!-- ================= PAGE: CORPORATE SUB-PAGES ================= -->
+        
+        <!-- Removed: Hakkımızda (Biz Kimiz) Section -->
+
+        <!-- Yatırımcı İlişkileri -->
+        <div id="view-yatirimci" class="page-view">
+            <section class="py-20 relative overflow-hidden">
+                 <div class="absolute top-0 left-0 w-1/3 h-full bg-blue-600/5 blur-[100px] -z-10"></div>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12 animate-slide-up">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Yatırımcı İlişkileri</h2>
+                        <p class="text-slate-400 max-w-2xl mx-auto">Dijital CEO olarak büyüme stratejilerimiz, finansal performansımız ve yatırım fırsatlarımız hakkında yatırımcılara şeffaf bilgiler sağlıyoruz.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6 mb-10 animate-slide-up animation-delay-100">
+                        <div class="glass-panel p-6 rounded-2xl border border-white/5 hover:border-brand-500/30 transition">
+                            <h4 class="text-white font-bold mb-2 flex items-center gap-2"><i data-lucide="bar-chart-2" class="text-brand-400 w-5 h-5"></i> Finansal Özet</h4>
+                            <p class="text-slate-400 text-sm">Gelir büyümesi, brüt kar marjı ve yıllık hedefler hakkında kısa özetler ve grafikler burada yer alır.</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-2xl border border-white/5 hover:border-brand-500/30 transition">
+                            <h4 class="text-white font-bold mb-2 flex items-center gap-2"><i data-lucide="presentation" class="text-brand-400 w-5 h-5"></i> Yatırımcı Sunumu</h4>
+                            <p class="text-slate-400 text-sm mb-4">Çeyreklik sunumlarımızı buradan indirebilirsiniz.</p>
+                            <a href="BTM Sunum.pptx" download class="inline-block bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded text-xs font-bold transition w-full text-center">Sunumu İndir (PPTX)</a>
+                        </div>
+                        <div class="glass-panel p-6 rounded-2xl border border-white/5 hover:border-brand-500/30 transition">
+                            <h4 class="text-white font-bold mb-2 flex items-center gap-2"><i data-lucide="mail" class="text-brand-400 w-5 h-5"></i> İletişim</h4>
+                            <p class="text-slate-400 text-sm">Yatırımcı ilişkileri departmanımıza ulaşın.</p>
+                            <p class="text-white font-mono text-sm mt-2">yatirimci@aithink.com.tr</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-8 rounded-2xl animate-slide-up animation-delay-200">
+                        <h3 class="text-xl font-bold text-white mb-4">Kurumsal Yönetim & Raporlama</h3>
+                        <p class="text-slate-300 mb-4 text-sm leading-relaxed">Düzenli finansal raporlama, şeffaf yönetim uygulamaları ve risk yönetimi süreçleri ile sürdürülebilir büyümeyi hedefliyoruz. Paydaşlarımıza karşı sorumluluklarımızın bilincindeyiz.</p>
+                        <ul class="text-slate-400 list-disc pl-5 space-y-2 text-sm">
+                            <li>Çeyreklik mali tablolar ve özet raporlar</li>
+                            <li>Yatırımcı sunumları ve performans KPI'ları</li>
+                            <li>Risk ve uyum raporlaması</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Kurumsal Kimlik -->
+        <div id="view-kimlik" class="page-view">
+            <section class="py-20 relative overflow-hidden">
+                <div class="absolute bottom-0 right-0 w-1/3 h-full bg-purple-600/5 blur-[100px] -z-10"></div>
+                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 animate-slide-up">Kurumsal Kimlik</h2>
+                    <p class="text-slate-400 mb-12 animate-slide-up animation-delay-100">Markamızın görsel dili, logo kullanımı, renk paleti ve tipografi rehberi. İş ortaklarımız ve medya için kurumsal materyaller.</p>
+
+                    <div class="grid md:grid-cols-3 gap-6 mb-12 animate-slide-up animation-delay-200">
+                        <div class="glass-panel p-6 rounded-2xl hover:-translate-y-1 transition duration-300">
+                            <div class="h-24 bg-slate-950/50 rounded-lg flex items-center justify-center mb-4 border border-white/5">
+                                <span class="font-bold text-white text-lg">Logo</span>
+                            </div>
+                            <h4 class="text-white font-bold mb-2">Logo Kullanımı</h4>
+                            <p class="text-slate-400 text-xs mb-4">Farklı zeminler için logo varyasyonları.</p>
+                            <button class="text-brand-400 text-xs font-bold hover:text-white transition">İndir (ZIP)</button>
+                        </div>
+                        <div class="glass-panel p-6 rounded-2xl hover:-translate-y-1 transition duration-300">
+                             <div class="h-24 bg-slate-950/50 rounded-lg flex items-center justify-center mb-4 border border-white/5 gap-2">
+                                <div class="w-6 h-6 rounded-full bg-[#020617] border border-slate-700"></div>
+                                <div class="w-6 h-6 rounded-full bg-[#3b82f6]"></div>
+                                <div class="w-6 h-6 rounded-full bg-[#06b6d4]"></div>
+                            </div>
+                            <h4 class="text-white font-bold mb-2">Renk Paleti</h4>
+                            <p class="text-slate-400 text-xs mb-4">Marka ana ve yardımcı renk kodları.</p>
+                            <button class="text-brand-400 text-xs font-bold hover:text-white transition">Kodları Kopyala</button>
+                        </div>
+                        <div class="glass-panel p-6 rounded-2xl hover:-translate-y-1 transition duration-300">
+                             <div class="h-24 bg-slate-950/50 rounded-lg flex items-center justify-center mb-4 border border-white/5">
+                                <span class="text-3xl font-sans font-bold text-white">Aa</span>
+                            </div>
+                            <h4 class="text-white font-bold mb-2">Tipografi</h4>
+                            <p class="text-slate-400 text-xs mb-4">Inter ve JetBrains Mono font aileleri.</p>
+                            <button class="text-brand-400 text-xs font-bold hover:text-white transition">Rehberi Gör</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Kilometre Taşlarımız -->
+        <div id="view-kilometre" class="page-view">
+            <section class="py-20">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12 animate-slide-up">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Kilometre Taşlarımız</h2>
+                        <p class="text-slate-400">Başarılarla dolu yolculuğumuzun önemli durakları.</p>
+                    </div>
+
+                    <div class="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-brand-500 before:via-brand-900 before:to-transparent animate-slide-up animation-delay-100">
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-900 bg-brand-500 shadow-[0_0_20px_rgba(59,130,246,0.5)] text-white shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                <span class="text-xs font-bold">2024</span>
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-6 rounded-2xl border border-brand-500/30">
+                                <h4 class="text-white font-bold text-lg mb-1">Global Pazara Açılma</h4>
+                                <p class="text-slate-400 text-sm">Avrupa ve MENA bölgesinde ilk ofislerimizi açtık.</p>
+                            </div>
+                        </div>
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-900 bg-slate-800 text-slate-400 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                <span class="text-xs font-bold">2023</span>
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-6 rounded-2xl">
+                                <h4 class="text-white font-bold text-lg mb-1">AI 2.0 Güncellemesi</h4>
+                                <p class="text-slate-400 text-sm">Gemini entegrasyonu ile analiz yeteneklerimiz %300 arttı.</p>
+                            </div>
+                        </div>
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-slate-900 bg-slate-800 text-slate-400 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                <span class="text-xs font-bold">2021</span>
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-6 rounded-2xl">
+                                <h4 class="text-white font-bold text-lg mb-1">Kuruluş</h4>
+                                <p class="text-slate-400 text-sm">İstanbul Teknopark'ta 5 kişilik bir ekiple yola çıktık.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Sürdürebilirlik -->
+        <div id="view-surdurebilirlik" class="page-view">
+            <section class="py-20 relative overflow-hidden">
+                 <div class="absolute top-0 right-0 w-1/3 h-full bg-green-600/5 blur-[100px] -z-10"></div>
+                <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 animate-slide-up">Sürdürebilirlik</h2>
+                    <p class="text-slate-400 mb-12 animate-slide-up animation-delay-100">Teknolojiyi sadece işi değil, dünyayı iyileştirmek için kullanıyoruz. Çevresel, sosyal ve yönetişim (ESG) ilkeleriyle hareket ediyoruz.</p>
+
+                    <div class="grid md:grid-cols-3 gap-6 animate-slide-up animation-delay-200">
+                        <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition duration-300">
+                            <i data-lucide="leaf" class="w-10 h-10 text-green-400 mx-auto mb-4"></i>
+                            <h4 class="text-white font-bold mb-2">Çevre</h4>
+                            <p class="text-slate-400 text-sm leading-relaxed">Enerji verimliliği yüksek algoritmalar ve yeşil veri merkezleri ile karbon ayak izimizi azaltıyoruz.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition duration-300">
+                            <i data-lucide="users" class="w-10 h-10 text-blue-400 mx-auto mb-4"></i>
+                            <h4 class="text-white font-bold mb-2">Sosyal</h4>
+                            <p class="text-slate-400 text-sm leading-relaxed">Eğitimde fırsat eşitliği ve teknoloji okuryazarlığı projelerine destek veriyoruz.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition duration-300">
+                            <i data-lucide="shield" class="w-10 h-10 text-brand-400 mx-auto mb-4"></i>
+                            <h4 class="text-white font-bold mb-2">Yönetişim</h4>
+                            <p class="text-slate-400 text-sm leading-relaxed">Etik iş yapış biçimleri ve şeffaf raporlama standartlarını benimsiyoruz.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Kalite Yaklaşımı -->
+        <div id="view-kalite" class="page-view">
+            <section class="py-20">
+                <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12 animate-slide-up">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">Kalite Yaklaşımı</h2>
+                        <p class="text-slate-400">Mükemmellik bir eylem değil, bir alışkanlıktır. Uluslararası standartlarda hizmet sunuyoruz.</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8 animate-slide-up animation-delay-100">
+                        <div class="glass-panel p-8 rounded-2xl flex items-start gap-4">
+                            <div class="w-16 h-16 bg-brand-500/10 rounded-xl flex items-center justify-center shrink-0 text-brand-400 font-bold text-xl border border-brand-500/20">ISO</div>
+                            <div>
+                                <h4 class="text-white font-bold text-lg mb-2">ISO 27001 Bilgi Güvenliği</h4>
+                                <p class="text-slate-400 text-sm leading-relaxed">Müşteri verilerinin güvenliği en üst önceliğimizdir. Bilgi güvenliği yönetim sistemimiz uluslararası standartlardadır.</p>
+                            </div>
+                        </div>
+                        <div class="glass-panel p-8 rounded-2xl flex items-start gap-4">
+                            <div class="w-16 h-16 bg-brand-500/10 rounded-xl flex items-center justify-center shrink-0 text-brand-400 font-bold text-xl border border-brand-500/20">ISO</div>
+                            <div>
+                                <h4 class="text-white font-bold text-lg mb-2">ISO 9001 Kalite Yönetimi</h4>
+                                <p class="text-slate-400 text-sm leading-relaxed">Süreçlerimizi sürekli iyileştiriyor, müşteri memnuniyetini odağımızda tutarak kalite standartlarımızı yükseltiyoruz.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- İş Ortaklarımız -->
+        <div id="view-is-ortaklari" class="page-view">
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 animate-slide-up">İş Ortaklarımız</h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto mb-16 text-lg animate-slide-up animation-delay-100">
+                        Güçlü iş birlikleriyle ekosistemi büyütüyoruz.
+                    </p>
+                    
+                    <div class="flex flex-wrap justify-center gap-8 animate-slide-up animation-delay-200">
+                        <div class="glass-panel p-10 rounded-3xl w-72 h-60 flex flex-col items-center justify-center hover:border-brand-500/50 transition duration-300 group hover:-translate-y-2">
+                            <div class="text-3xl font-black text-white mb-4 tracking-tighter group-hover:text-brand-400 transition">LogoSofu</div>
+                            <div class="w-16 h-1 bg-slate-700 rounded mb-6 group-hover:w-32 group-hover:bg-brand-500 transition-all duration-300"></div>
+                            <p class="text-sm text-slate-500 font-medium">Stratejik Yazılım Ortağı</p>
+                        </div>
+
+                        <div class="glass-panel p-10 rounded-3xl w-72 h-60 flex flex-col items-center justify-center hover:border-brand-500/50 transition duration-300 group hover:-translate-y-2">
+                            <div class="flex flex-col items-center mb-2">
+                                <div class="text-5xl font-serif font-bold text-white mb-1 group-hover:text-brand-400 transition">İTO</div>
+                                <div class="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-bold">İstanbul Ticaret Odası</div>
+                            </div>
+                            <div class="w-16 h-1 bg-slate-700 rounded mb-6 mt-4 group-hover:w-32 group-hover:bg-brand-500 transition-all duration-300"></div>
+                            <p class="text-sm text-slate-500 font-medium">Sektörel İş Birliği</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Etik İlkeler -->
+        <div id="view-etik" class="page-view">
+            <section class="py-20">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16 animate-slide-up">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Etik İlkeler ve Uyum</h2>
+                        <p class="text-slate-400 text-lg">İşimizi doğru yapmak kadar, doğru yolla yapmak da önemlidir.</p>
+                    </div>
+                    <div class="glass-panel p-10 rounded-3xl animate-slide-up animation-delay-100">
+                        <ul class="space-y-4 text-slate-300 list-disc list-inside">
+                            <li><strong class="text-white">Dürüstlük ve Şeffaflık:</strong> Tüm iş süreçlerimizde ve ilişkilerimizde doğruluk esastır.</li>
+                            <li><strong class="text-white">Adil Rekabet:</strong> Sektörde haksız rekabete yol açacak eylemlerden kaçınırız.</li>
+                            <li><strong class="text-white">Gizlilik:</strong> Müşteri ve çalışan verilerinin gizliliğini en üst düzeyde koruruz.</li>
+                            <li><strong class="text-white">Çıkar Çatışması:</strong> Kişisel çıkarların şirket çıkarlarıyla çatışmasına izin vermeyiz.</li>
+                            <li><strong class="text-white">Yasalara Uyum:</strong> Faaliyet gösterdiğimiz tüm ülkelerin yasalarına tam uyum sağlarız.</li>
+                        </ul>
+                         <div class="mt-8 pt-8 border-t border-white/10 text-center">
+                            <a href="#" class="inline-flex items-center gap-2 text-brand-400 hover:text-white transition font-bold text-sm">
+                                <i data-lucide="download" class="w-4 h-4"></i> Etik Yönetmeliği İndir (PDF)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Hakkımızda (Biz Kimiz) -->
+        <div id="view-hakkimizda" class="page-view">
+            <section class="py-20 relative overflow-hidden">
+                <!-- Background visual -->
+                <div class="absolute top-0 right-0 w-1/3 h-full bg-brand-600/10 blur-[100px] -z-10"></div>
+                
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <!-- Intro / Executive Summary -->
+                    <div class="text-center mb-16 animate-slide-up">
+                        <div class="inline-block mb-4 px-4 py-1 rounded-full border border-white/10 bg-white/5 text-slate-300 text-xs font-bold tracking-widest uppercase backdrop-blur-md">Biz Kimiz?</div>
+                        <h2 class="text-4xl md:text-6xl font-black text-white mb-8">Dijital CEO Nedir?</h2>
+                        <div class="max-w-4xl mx-auto text-lg text-slate-400 leading-relaxed space-y-6 text-left md:text-center">
+                            <p>
+                                Dijital CEO, <strong>25-500 arası çalışanı olan KOBİ'lere</strong> yönelik geliştirilmiş yapay zeka tabanlı dijital asistan uygulamasıdır. Uygulama, şirket yöneticilerine ve CEO'lara satış, pazarlama, insan kaynakları, finans, muhasebe, stok, cari, banka, kasa, nakit akışı, satın alma, faturalar ve kâr-zarar tabloları gibi kritik alanlarda destek sunarak, <strong>veri odaklı karar alma süreçlerini hızlandırmayı</strong> ve iyileştirmeyi hedeflemektedir.
+                            </p>
+                            <p>
+                                Geliştirdiğimiz bu yenilikçi platform, KOBİ'lerin mevcut <strong>ERP, CRM ve muhasebe yazılımlarıyla entegre çalışarak</strong>, şirket yöneticilerine gerçek zamanlı analizler ve öngörüler sunar. Bu sayede, finansal riskleri minimize etmek, operasyonel verimliliği artırmak ve büyük veriden anlamlı sonuçlar çıkarmak mümkün hale gelmektedir.
+                            </p>
+                            <p>
+                                Dijital CEO'nun temel farkı, sadece bir raporlama aracı olmasından çok, yöneticilerin ihtiyaç duyduğu karar destek sistemlerini <strong>yapay zeka ile birleştirerek akıllı çözümler</strong> sunmasıdır. Hedefimiz, KOBİ'lerin dijital dönüşüm sürecine liderlik eden bir çözüm sağlayıcı olarak sektörde kalıcı bir yer edinmektir.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Mission & Vision -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
+                         <div class="glass-panel p-10 rounded-3xl border border-brand-500/30 relative overflow-hidden group hover:border-brand-500/50 transition duration-500">
+                            <div class="absolute top-0 right-0 p-10 opacity-10 group-hover:opacity-20 transition duration-500"><i data-lucide="target" class="w-40 h-40 text-brand-400"></i></div>
+                            <div class="relative z-10">
+                                <div class="w-14 h-14 bg-brand-500/20 rounded-2xl flex items-center justify-center text-brand-400 mb-6"><i data-lucide="target" class="w-8 h-8"></i></div>
+                                <h3 class="text-3xl font-bold text-white mb-4">Misyonumuz</h3>
+                                <p class="text-slate-300 leading-relaxed text-lg">
+                                    KOBİ'lerin dijital dönüşümünü hızlandırarak, yapay zeka destekli veri analitiği ve akıllı karar destek sistemleri ile işletmelerin daha verimli, rekabetçi ve sürdürülebilir olmasını sağlamak. Şirket yöneticilerinin iş süreçlerini kolaylaştırarak, stratejik kararlarını veri odaklı ve güvenilir bilgilerle almalarına yardımcı olmak.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-10 rounded-3xl border border-accent-500/30 relative overflow-hidden group hover:border-accent-500/50 transition duration-500">
+                            <div class="absolute top-0 right-0 p-10 opacity-10 group-hover:opacity-20 transition duration-500"><i data-lucide="eye" class="w-40 h-40 text-accent-400"></i></div>
+                            <div class="relative z-10">
+                                <div class="w-14 h-14 bg-accent-500/20 rounded-2xl flex items-center justify-center text-accent-400 mb-6"><i data-lucide="eye" class="w-8 h-8"></i></div>
+                                <h3 class="text-3xl font-bold text-white mb-4">Vizyonumuz</h3>
+                                <p class="text-slate-300 leading-relaxed text-lg">
+                                    KOBİ’ler için en güvenilir ve etkili dijital iş danışmanı olmak. Yapay zeka ve büyük veri teknolojilerini kullanarak işletmelerin satış, pazarlama, finans ve operasyonel süreçlerini optimize eden lider bir platform haline gelmek. Dijital CEO’yu, Türkiye ve global pazarda KOBİ’lerin olmazsa olmaz bir iş ortağı yapmak.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ekibimiz -->
+                    <div class="mb-20">
+                        <h3 class="text-3xl font-bold text-white mb-10 text-center">Bizim Ekibimiz</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            <!-- Kurucu / CEO -->
+                            <div class="glass-panel p-6 rounded-2xl text-center group hover:border-brand-500/50 transition">
+                                <div class="w-24 h-24 bg-brand-500/20 rounded-full mx-auto mb-4 flex items-center justify-center text-brand-400 group-hover:scale-110 transition">
+                                    <i data-lucide="user" class="w-12 h-12"></i>
+                                </div>
+                                <h4 class="text-white font-bold text-lg">Kürşat Güney</h4>
+                                <p class="text-brand-400 text-sm mb-4">CEO & Kurucu</p>
+                                <p class="text-slate-400 text-xs leading-relaxed">Vizyoner liderliği ile KOBİ'lerin dijital dönüşüm yolculuğuna rehberlik ediyor.</p>
+                            </div>
+                            <!-- CTO -->
+                            <div class="glass-panel p-6 rounded-2xl text-center group hover:border-blue-500/50 transition">
+                                <div class="w-24 h-24 bg-blue-500/20 rounded-full mx-auto mb-4 flex items-center justify-center text-blue-400 group-hover:scale-110 transition">
+                                    <i data-lucide="code-2" class="w-12 h-12"></i>
+                                </div>
+                                <h4 class="text-white font-bold text-lg">Yazılım Ekibi</h4>
+                                <p class="text-blue-400 text-sm mb-4">Teknoloji & İnovasyon</p>
+                                <p class="text-slate-400 text-xs leading-relaxed">Yapay zeka algoritmalarımızı ve platform altyapımızı sürekli geliştiriyorlar.</p>
+                            </div>
+                            <!-- Ürün -->
+                            <div class="glass-panel p-6 rounded-2xl text-center group hover:border-accent-500/50 transition">
+                                <div class="w-24 h-24 bg-accent-500/20 rounded-full mx-auto mb-4 flex items-center justify-center text-accent-400 group-hover:scale-110 transition">
+                                    <i data-lucide="layout" class="w-12 h-12"></i>
+                                </div>
+                                <h4 class="text-white font-bold text-lg">Ürün Geliştirme</h4>
+                                <p class="text-accent-400 text-sm mb-4">Kullanıcı Deneyimi</p>
+                                <p class="text-slate-400 text-xs leading-relaxed">Kullanıcı dostu arayüzler ve verimli raporlama araçları tasarlıyorlar.</p>
+                            </div>
+                            <!-- Danışmanlık -->
+                            <div class="glass-panel p-6 rounded-2xl text-center group hover:border-purple-500/50 transition">
+                                <div class="w-24 h-24 bg-purple-500/20 rounded-full mx-auto mb-4 flex items-center justify-center text-purple-400 group-hover:scale-110 transition">
+                                    <i data-lucide="briefcase" class="w-12 h-12"></i>
+                                </div>
+                                <h4 class="text-white font-bold text-lg">Danışmanlık Birimi</h4>
+                                <p class="text-purple-400 text-sm mb-4">Strateji & ERP</p>
+                                <p class="text-slate-400 text-xs leading-relaxed">İşletmelerin süreçlerini analiz ederek en uygun AI çözümlerini sunuyorlar.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Core Values -->
+                    <div class="mb-12">
+                        <h3 class="text-3xl font-bold text-white mb-10 text-center">Değerlerimiz</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- İnovasyon -->
+                            <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition duration-300 group hover:border-yellow-500/50 border border-white/5">
+                                <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-4 group-hover:bg-yellow-500/20 transition"><i data-lucide="zap" class="text-yellow-400 w-6 h-6"></i></div>
+                                <h5 class="text-xl font-bold text-white mb-2">İnovasyon</h5>
+                                <p class="text-slate-400 text-sm leading-relaxed">Sürekli gelişen yapay zeka ve veri analitiği teknolojilerini kullanarak, müşterilerimize en ileri çözümleri sunuyoruz.</p>
+                            </div>
+                            <!-- Güvenilirlik -->
+                            <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition duration-300 group hover:border-green-500/50 border border-white/5">
+                                <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition"><i data-lucide="shield-check" class="text-green-400 w-6 h-6"></i></div>
+                                <h5 class="text-xl font-bold text-white mb-2">Güvenilirlik</h5>
+                                <p class="text-slate-400 text-sm leading-relaxed">Verilerin gizliliğini ve doğruluğunu koruyarak, müşterilerimize güvenli bir hizmet sunuyoruz.</p>
+                            </div>
+                            <!-- Şeffaflık -->
+                             <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition duration-300 group hover:border-blue-500/50 border border-white/5">
+                                <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition"><i data-lucide="search" class="text-blue-400 w-6 h-6"></i></div>
+                                <h5 class="text-xl font-bold text-white mb-2">Şeffaflık</h5>
+                                <p class="text-slate-400 text-sm leading-relaxed">Kullanıcılarımıza açık, anlaşılır ve erişilebilir bilgiler sunarak, iş süreçlerini en verimli şekilde yönetmelerine destek oluyoruz.</p>
+                            </div>
+                            <!-- Müşteri Odaklılık -->
+                            <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition duration-300 group hover:border-red-500/50 border border-white/5">
+                                <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 group-hover:bg-red-500/20 transition"><i data-lucide="heart" class="text-red-400 w-6 h-6"></i></div>
+                                <h5 class="text-xl font-bold text-white mb-2">Müşteri Odaklılık</h5>
+                                <p class="text-slate-400 text-sm leading-relaxed">KOBİ’lerin ihtiyaçlarını en iyi şekilde anlamak ve onlar için değer yaratan çözümler sunmak önceliğimizdir.</p>
+                            </div>
+                            <!-- Verimlilik -->
+                             <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition duration-300 group hover:border-purple-500/50 border border-white/5">
+                                <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-4 group-hover:bg-purple-500/20 transition"><i data-lucide="bar-chart-2" class="text-purple-400 w-6 h-6"></i></div>
+                                <h5 class="text-xl font-bold text-white mb-2">Verimlilik</h5>
+                                <p class="text-slate-400 text-sm leading-relaxed">İş süreçlerini optimize ederek, müşterilerimizin zaman ve maliyet tasarrufu sağlamasına yardımcı oluyoruz.</p>
+                            </div>
+                            <!-- Uyumluluk -->
+                             <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition duration-300 group hover:border-cyan-500/50 border border-white/5">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-4 group-hover:bg-cyan-500/20 transition"><i data-lucide="link" class="text-cyan-400 w-6 h-6"></i></div>
+                                <h5 class="text-xl font-bold text-white mb-2">Uyumluluk ve Entegrasyon</h5>
+                                <p class="text-slate-400 text-sm leading-relaxed">Mevcut iş yazılımlarıyla sorunsuz entegrasyon sağlayarak, işletmelerin dijital dönüşümüne katkıda bulunuyoruz.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="bg-[#020617] border-t border-slate-800 pt-16 pb-8 mt-auto relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center gap-2 mb-4">
+                        <img src="images/WhatsApp Image 2025-12-30 at 16.11.322.jpeg" alt="Dijital CEO Logo" class="w-10 h-10 rounded-lg object-cover">
+                        <span class="font-bold text-xl text-white">Dijital<span class="text-brand-400">CEO</span></span>
+                    </div>
+                    <p class="text-slate-500 text-sm max-w-sm">Veriden değer yaratan, rekabet avantajı sağlayan yeni nesil iş ortağınız.</p>
+                </div>
+                <div><h4 class="font-bold text-white mb-4">Hızlı Erişim</h4><ul class="space-y-2 text-sm text-slate-400"><li><button onclick="navigateTo('dijitalceo')" class="hover:text-brand-400 transition">Dijital CEO</button></li><li><button onclick="navigateTo('cozumler')" class="hover:text-brand-400 transition">Eğitim & Danışmanlık</button></li><li><button onclick="navigateTo('sektorler')" class="hover:text-brand-400 transition">Sektörler</button></li><li><button onclick="navigateTo('iletisim')" class="hover:text-brand-400 transition">İletişim</button></li></ul></div>
+                <div><h4 class="font-bold text-white mb-4">Bize Ulaşın</h4><p class="text-sm text-slate-400 mb-2">kursatguney@aithink.com.tr</p><div class="flex gap-4 mt-4"><a href="#" class="text-slate-500 hover:text-white transition"><i data-lucide="linkedin" class="w-5 h-5"></i></a><a href="#" class="text-slate-500 hover:text-white transition"><i data-lucide="twitter" class="w-5 h-5"></i></a></div></div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 text-center text-slate-600 text-sm"><p>&copy; 2025 Dijital CEO Teknoloji A.Ş. Tüm hakları saklıdır.</p></div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        lucide.createIcons();
+
+        // --- DEMO TAB SWITCHER ---
+        function switchDemoTab(tabName) {
+            const chatView = document.getElementById('demo-view-chat');
+            const reportsView = document.getElementById('demo-view-reports');
+            const chatTabBtn = document.getElementById('tab-chat');
+            const reportsTabBtn = document.getElementById('tab-reports');
+
+            if (tabName === 'chat') {
+                chatView.classList.remove('hidden');
+                reportsView.classList.add('hidden');
+                
+                chatTabBtn.classList.add('bg-brand-600', 'text-white');
+                chatTabBtn.classList.remove('text-slate-400');
+                
+                reportsTabBtn.classList.remove('bg-brand-600', 'text-white');
+                reportsTabBtn.classList.add('text-slate-400');
+            } else {
+                chatView.classList.add('hidden');
+                reportsView.classList.remove('hidden');
+                
+                reportsTabBtn.classList.add('bg-brand-600', 'text-white');
+                reportsTabBtn.classList.remove('text-slate-400');
+                
+                chatTabBtn.classList.remove('bg-brand-600', 'text-white');
+                chatTabBtn.classList.add('text-slate-400');
+            }
+        }
+
+        // --- GEMINI API INTEGRATION ---
+        const apiKey = "AIzaSyCXthC0_hK4WmdDsqq5T7NPe5CKGjdBL0E";
+
+        async function callGeminiAPI(prompt) {
+            if (!apiKey) {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve("⚠️ **Demo Modu:** API anahtarı algılanamadı. Ancak sorunuz ('" + prompt + "') için şunu söyleyebilirim: Yapay zeka modülümüz bu veriyi analiz ederek %15 maliyet tasarrufu sağlayabilir.");
+                    }, 1000);
+                });
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: "Sen Dijital CEO asistanısın. KOBİ yöneticilerine finans, satış, stok ve operasyon konularında kısa, net, stratejik ve veriye dayalı tavsiyeler verirsin. Yanıtların profesyonel, Türkçe ve teşvik edici olsun." }] }
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error("API Hatası");
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Yanıt alınamadı.";
+            } catch (e) {
+                return "Bağlantı hatası oluştu.";
+            }
+        }
+
+        // Chat Logic
+        const chatForm = document.getElementById('demo-chat-form');
+        const chatInput = document.getElementById('demo-chat-input');
+        const chatHistory = document.getElementById('demo-chat-history');
+
+        if(chatForm) {
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const message = chatInput.value.trim();
+                if (!message) return;
+
+                chatHistory.innerHTML += `<div class="flex items-start gap-3 justify-end animate-slide-up"><div class="bg-brand-600/20 p-3 rounded-lg rounded-tr-none border border-brand-500/30 text-white max-w-[80%]">${message}</div><div class="w-8 h-8 rounded bg-slate-700 flex items-center justify-center text-white shrink-0"><i data-lucide="user" class="w-5 h-5"></i></div></div>`;
+                chatInput.value = '';
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                const loadingId = 'loading-' + Date.now();
+                chatHistory.innerHTML += `<div id="${loadingId}" class="flex items-start gap-3 animate-pulse"><div class="w-8 h-8 rounded bg-brand-600/20 flex items-center justify-center text-brand-400 shrink-0"><i data-lucide="bot" class="w-5 h-5"></i></div><div class="bg-white/5 p-3 rounded-lg rounded-tl-none border border-white/5 text-slate-400 text-xs">Analiz ediliyor...</div></div>`;
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+                const responseText = await callGeminiAPI(message);
+                const loadingEl = document.getElementById(loadingId);
+                if(loadingEl) loadingEl.remove();
+
+                const parsedResponse = marked.parse(responseText);
+                chatHistory.innerHTML += `<div class="flex items-start gap-3 animate-slide-up"><div class="w-8 h-8 rounded bg-brand-600/20 flex items-center justify-center text-brand-400 shrink-0"><i data-lucide="bot" class="w-5 h-5"></i></div><div class="bg-white/5 p-3 rounded-lg rounded-tl-none border border-white/5 text-slate-300 max-w-[90%] ai-message">${parsedResponse}</div></div>`;
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            });
+        }
+
+        // --- SECTOR DATA WITH VIDEO URLS ---
+        const sectorData = {
+            'Perakende': {
+                icon: 'shopping-bag',
+                video: 'https://videos.pexels.com/video-files/3205626/3205626-hd_1920_1080_25fps.mp4',
+                without: { title: 'Yapay Zekasız (Kaos)', desc: 'Stok fazlası maliyet yaratır, çok satan ürünler biter, müşteri kaçar. Kampanyalar rastgele yapılır, kârlılık düşer.' },
+                with: { title: 'Dijital CEO ile (Düzen)', desc: 'Talep tahmini ile optimum stok. Müşteri segmentasyonu ile nokta atışı kampanyalar. %25 Ciro artışı.' }
+            },
+            'Eğitim': {
+                icon: 'graduation-cap',
+                video: 'https://videos.pexels.com/video-files/5200378/5200378-hd_1920_1080_30fps.mp4',
+                without: { title: 'Yapay Zekasız', desc: 'Öğrenci devamsızlığı geç fark edilir. Akademik performans takibi manuel yapılır. Kaynak planlaması verimsizdir.' },
+                with: { title: 'Dijital CEO ile', desc: 'Öğrenci başarısı önceden tahmin edilir. Kişiselleştirilmiş eğitim planları sunulur. Kayıt oranları artar.' }
+            },
+            'Finans': {
+                icon: 'landmark',
+                video: 'https://videos.pexels.com/video-files/7568579/7568579-hd_1920_1080_25fps.mp4',
+                without: { title: 'Yapay Zekasız', desc: 'Manuel raporlarla riskler gözden kaçar. Dolandırıcılık tespiti geç yapılır. Müşteri kaybı (Churn) engellenemez.' },
+                with: { title: 'Dijital CEO ile', desc: 'Anlık risk analizi ve fraud tespiti. Portföy optimizasyonu ile maksimum getiri.' }
+            },
+            'Telekomünikasyon': {
+                icon: 'radio-tower',
+                video: 'https://videos.pexels.com/video-files/2711130/2711130-hd_1920_1080_30fps.mp4',
+                without: { title: 'Yapay Zekasız', desc: 'Şebeke arızaları müşteri şikayetiyle öğrenilir. Abonelik iptalleri öngörülemez.' },
+                with: { title: 'Dijital CEO ile', desc: 'Kestirimci bakım ile kesintisiz hizmet. Müşteri davranış analizi ile sadakat artışı.' }
+            },
+            'Dayanıklı Tüketim': {
+                icon: 'armchair',
+                video: 'https://videos.pexels.com/video-files/6192837/6192837-hd_1920_1080_25fps.mp4',
+                without: { title: 'Yapay Zekasız', desc: 'Tedarik zinciri aksamaları üretimi durdurur. Servis talepleri yönetilemez.' },
+                with: { title: 'Dijital CEO ile', desc: 'Uçtan uca tedarik zinciri görünürlüğü. Talep bazlı üretim planlama.' }
+            },
+            'Sigorta': {
+                icon: 'shield',
+                video: 'https://videos.pexels.com/video-files/8473539/8473539-hd_1920_1080_25fps.mp4',
+                without: { title: 'Yapay Zekasız', desc: 'Hasar tespit süreçleri uzar. Poliçe fiyatlaması rekabetçi olamaz.' },
+                with: { title: 'Dijital CEO ile', desc: 'Görüntü işleme ile anlık hasar analizi. Kişiye özel dinamik fiyatlama.' }
+            },
+            'Enerji': {
+                icon: 'zap',
+                video: 'https://videos.pexels.com/video-files/853748/853748-hd_1920_1080_30fps.mp4',
+                without: { title: 'Yapay Zekasız', desc: 'Enerji tüketim tahminleri sapar. Bakım maliyetleri yüksektir. Kaçak kullanımı tespiti zordur.' },
+                with: { title: 'Dijital CEO ile', desc: 'Yük tahmini ile enerji ticareti optimizasyonu. Arıza öncesi uyarı sistemleri.' }
+            },
+            'Sağlık': {
+                icon: 'stethoscope',
+                video: 'https://videos.pexels.com/video-files/3252038/3252038-hd_1920_1080_25fps.mp4',
+                without: { title: 'Yapay Zekasız', desc: 'Randevu verimsizliği ve bekleme süreleri. Kaynak ve personel planlama hataları.' },
+                with: { title: 'Dijital CEO ile', desc: 'Hasta akış optimizasyonu. Tıbbi malzeme stok yönetimi. Teşhis destek sistemleri.' }
+            },
+            'Turizm': {
+                icon: 'plane',
+                video: 'https://videos.pexels.com/video-files/2169880/2169880-hd_1920_1080_30fps.mp4',
+                without: { title: 'Yapay Zekasız', desc: 'Sezonluk doluluk tahminleri tutmaz. Dinamik fiyatlama yapılamaz.' },
+                with: { title: 'Dijital CEO ile', desc: 'Rakip ve talep analizine göre anlık fiyatlama. Maksimum doluluk ve gelir.' }
+            }
+        };
+
+        // --- NAVIGATION LOGIC ---
+        function navigateTo(viewId) {
+            document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => {
+                 el.classList.remove('text-white', 'bg-white/10');
+                 el.classList.add('text-slate-300');
+            });
+            
+            const activeNav = document.getElementById(`nav-${viewId}`);
+            if(activeNav) {
+                activeNav.classList.add('text-white', 'bg-white/10');
+                activeNav.classList.remove('text-slate-300');
+            }
+
+            const target = document.getElementById(`view-${viewId}`);
+            if (target) {
+                target.classList.add('active');
+                window.scrollTo(0, 0);
+            } else {
+                document.getElementById('view-home').classList.add('active');
+            }
+        }
+
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        function toggleMobileMenu() { menu.classList.toggle('hidden'); }
+        btn.addEventListener('click', toggleMobileMenu);
+
+        // --- SECTOR LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const sectorSelector = document.getElementById('sector-selector');
+            const sectorContent = document.getElementById('sector-content');
+            const sectorKeys = Object.keys(sectorData);
+
+            // Populate Buttons
+            sectorKeys.forEach(key => {
+                const button = document.createElement('button');
+                button.className = 'sector-button glass-panel px-4 py-2 md:px-6 md:py-3 rounded-xl font-semibold text-slate-300 hover:text-white hover:border-brand-500/50 hover:bg-white/5 transition text-sm md:text-base';
+                button.textContent = key;
+                button.dataset.sector = key;
+                sectorSelector.appendChild(button);
+            });
+
+            function updateSectorContent(key) {
+                const data = sectorData[key];
+                // Update buttons visual state
+                document.querySelectorAll('.sector-button').forEach(btn => {
+                    const isActive = btn.dataset.sector === key;
+                    btn.classList.toggle('active-sector', isActive);
+                    if(!isActive) btn.style.transform = 'scale(1)';
+                });
+
+                // Create Content with Animation
+                sectorContent.innerHTML = `
+                    <div class="relative w-full h-[500px] rounded-3xl overflow-hidden shadow-2xl animate-fade-in group border border-white/10">
+                        <!-- Video Background -->
+                        <div class="video-bg-container">
+                            <video autoplay muted loop playsinline class="video-bg">
+                                <source src="${data.video}" type="video/mp4">
+                            </video>
+                            <div class="absolute inset-0 bg-slate-950/70"></div>
+                        </div>
+
+                        <!-- Content Overlay -->
+                        <div class="relative z-10 p-8 h-full flex flex-col justify-center">
+                            <div class="flex items-center justify-center mb-10">
+                                <div class="bg-white/10 backdrop-blur-md p-4 rounded-full border border-white/10">
+                                    <i data-lucide="${data.icon}" class="w-10 h-10 text-white"></i>
+                                </div>
+                                <h3 class="text-3xl md:text-4xl font-bold text-white ml-4">${key} Sektörü</h3>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto w-full">
+                                <!-- Without AI -->
+                                <div class="glass-panel p-8 rounded-2xl border-l-4 border-red-500 bg-black/40 backdrop-blur-md transform transition duration-500 hover:-translate-y-1">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <div class="p-2 bg-red-500/20 rounded-lg text-red-400"><i data-lucide="x-circle" class="w-6 h-6"></i></div>
+                                        <h3 class="text-xl font-bold text-white">${data.without.title}</h3>
+                                    </div>
+                                    <p class="text-slate-300 text-lg leading-relaxed">${data.without.desc}</p>
+                                </div>
+
+                                <!-- With AI -->
+                                <div class="glass-panel p-8 rounded-2xl border-l-4 border-green-500 bg-brand-900/40 backdrop-blur-md transform transition duration-500 hover:-translate-y-1 relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                                    <div class="flex items-center gap-3 mb-4 relative z-10">
+                                        <div class="p-2 bg-green-500/20 rounded-lg text-green-400"><i data-lucide="check-circle-2" class="w-6 h-6"></i></div>
+                                        <h3 class="text-xl font-bold text-white">${data.with.title}</h3>
+                                    </div>
+                                    <p class="text-slate-100 text-lg leading-relaxed relative z-10 font-medium">${data.with.desc}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+
+            // Click Handler
+            sectorSelector.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    updateSectorContent(e.target.dataset.sector);
+                }
+            });
+
+            // Initial Load
+            updateSectorContent(sectorKeys[0]);
+        });
+    </script>
+</body>
+</html>
