@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dijital CEO | Yapay Zeka Asistanı</title>
     <meta name="description" content="KOBİ'ler için geliştirilmiş yapay zeka tabanlı dijital asistan.">
+    <link rel="icon" type="image/jpeg" href="images/WhatsApp Image 2025-12-30 at 16.11.322.jpeg">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -811,7 +812,7 @@
                                     <li class="flex gap-3 border-t border-white/5 pt-3"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i> 2 Kullanıcı</li>
                                     <li class="flex gap-3"><i data-lucide="layout" class="w-5 h-5 text-slate-400"></i> 10 Rapor Ekranı</li>
                                 </ul>
-                                <button class="w-full py-3 rounded-lg border border-slate-600 text-white hover:bg-white/5 transition">Seç</button>
+                                <a href="https://wa.me/905320568570?text=Merhaba,%20Dijital%20CEO%20Basic%20paketi%20hakkında%20bilgi%20almak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg border border-slate-600 text-white hover:bg-white/5 transition inline-block text-center">Seç</a>
                             </div>
 
                             <!-- Premium Plan (Popular) -->
@@ -832,7 +833,7 @@
                                     <li class="flex gap-3 border-t border-white/5 pt-3"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i> 3 Kullanıcı</li>
                                     <li class="flex gap-3"><i data-lucide="layout" class="w-5 h-5 text-slate-400"></i> 18 Rapor Ekranı</li>
                                 </ul>
-                                <button class="w-full py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white transition font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)]">Hemen Başla</button>
+                                <a href="https://wa.me/905320568570?text=Merhaba,%20Dijital%20CEO%20Premium%20paketi%20ile%20hemen%20başlamak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white transition font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)] inline-block text-center">Hemen Başla</a>
                             </div>
 
                             <!-- Enterprise Plan -->
@@ -849,7 +850,7 @@
                                     <li class="flex gap-3 border-t border-white/5 pt-3"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i> 4 Kullanıcı</li>
                                     <li class="flex gap-3"><i data-lucide="layout" class="w-5 h-5 text-slate-400"></i> 25 Rapor Ekranı</li>
                                 </ul>
-                                <button class="w-full py-3 rounded-lg border border-slate-600 text-white hover:bg-white/5 transition">Teklif Al</button>
+                                <a href="https://wa.me/905320568570?text=Merhaba,%20Dijital%20CEO%20Enterprise%20paketi%20için%20teklif%20almak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg border border-slate-600 text-white hover:bg-white/5 transition inline-block text-center">Teklif Al</a>
                             </div>
                         </div>
                         
@@ -954,18 +955,18 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div class="glass-panel p-8 rounded-2xl">
-                             <form onsubmit="event.preventDefault(); alert('Mesajınız gönderildi!');" class="space-y-6">
+                             <form id="contact-form" class="space-y-6">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-400 mb-2">Ad Soyad</label>
-                                    <input type="text" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition">
+                                    <input type="text" id="contact-name" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-400 mb-2">E-posta</label>
-                                    <input type="email" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition">
+                                    <input type="email" id="contact-email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-slate-400 mb-2">Mesajınız</label>
-                                    <textarea rows="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition"></textarea>
+                                    <textarea id="contact-message" rows="4" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition"></textarea>
                                 </div>
                                 <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-lg transition">Gönder</button>
                             </form>
@@ -1402,7 +1403,7 @@
                     <p class="text-slate-500 text-sm max-w-sm">Veriden değer yaratan, rekabet avantajı sağlayan yeni nesil iş ortağınız.</p>
                 </div>
                 <div><h4 class="font-bold text-white mb-4">Hızlı Erişim</h4><ul class="space-y-2 text-sm text-slate-400"><li><button onclick="navigateTo('dijitalceo')" class="hover:text-brand-400 transition">Dijital CEO</button></li><li><button onclick="navigateTo('cozumler')" class="hover:text-brand-400 transition">Eğitim & Danışmanlık</button></li><li><button onclick="navigateTo('sektorler')" class="hover:text-brand-400 transition">Sektörler</button></li><li><button onclick="navigateTo('iletisim')" class="hover:text-brand-400 transition">İletişim</button></li></ul></div>
-                <div><h4 class="font-bold text-white mb-4">Bize Ulaşın</h4><p class="text-sm text-slate-400 mb-2">kursatguney@aithink.com.tr</p><div class="flex gap-4 mt-4"><a href="#" class="text-slate-500 hover:text-white transition"><i data-lucide="linkedin" class="w-5 h-5"></i></a><a href="#" class="text-slate-500 hover:text-white transition"><i data-lucide="twitter" class="w-5 h-5"></i></a></div></div>
+                <div><h4 class="font-bold text-white mb-4">Bize Ulaşın</h4><p class="text-sm text-slate-400 mb-2">kursatguney@aithink.com.tr</p><div class="flex gap-4 mt-4"><a href="https://www.linkedin.com/company/ai-thi%CC%87nk" target="_blank" class="text-slate-500 hover:text-white transition"><i data-lucide="linkedin" class="w-5 h-5"></i></a><a href="#" class="text-slate-500 hover:text-white transition"><i data-lucide="twitter" class="w-5 h-5"></i></a></div></div>
             </div>
             <div class="border-t border-slate-800 pt-8 text-center text-slate-600 text-sm"><p>&copy; 2025 Dijital CEO Teknoloji A.Ş. Tüm hakları saklıdır.</p></div>
         </div>
@@ -1666,6 +1667,20 @@
 
             // Initial Load
             updateSectorContent(sectorKeys[0]);
+        });
+
+        // --- CONTACT FORM WHATSAPP REDIRECT ---
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('contact-name').value;
+            const email = document.getElementById('contact-email').value;
+            const message = document.getElementById('contact-message').value;
+            
+            const whatsappMessage = `Merhaba, İletişim Formundan Yeni Mesaj:\n\nAd Soyad: ${name}\nE-posta: ${email}\nMesaj: ${message}`;
+            const encodedMessage = encodeURIComponent(whatsappMessage);
+            const whatsappUrl = `https://wa.me/905320568570?text=${encodedMessage}`;
+            
+            window.open(whatsappUrl, '_blank');
         });
     </script>
 </body>
