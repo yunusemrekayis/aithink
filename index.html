@@ -855,7 +855,13 @@
                         </div>
                         
                         <div class="text-center mt-8 text-sm text-slate-500 max-w-2xl mx-auto">
-                            * İlave Rapor Ekranı: 5.000 TL/Yıl | İlave Kullanıcı: 20.000 TL/Yıl | Sözleşme yenilemelerinde TÜFE+5 puan artış uygulanır.
+                            * İlave Rapor Ekranı birim fiyatı yıllık 5.000 TL’dir.
+                            * İlave Kullanıcı Lisansı yıllık 20.000 TL’dir.
+                            * İlave Özellik/Fonksiyon talebe göre ayrıca belirlenir.
+                            * Sözleşme yenilemelerinde (TÜFE + ÜFE) / 2 oranı geçerlidir.
+                            * Özel ve kurumsal projeler ayrıca fiyatlandırılır.
+                            * Fiyatlara KDV dahil değildir.
+
                         </div>
                     </div>
                 </div>
@@ -1441,36 +1447,441 @@
             }
         }
 
-        // --- GEMINI API INTEGRATION ---
-        const apiKey = "AIzaSyCXthC0_hK4WmdDsqq5T7NPe5CKGjdBL0E";
+        // --- CANNED RESPONSES INTEGRATION ---
+        // API anahtarı kaldırıldı. Artık Gemini çağrısı yerine
+        // müşterinin sorusuna göre hazır cevaplardan seçen bir sistem kullanıyoruz.
 
+        const cannedResponses = [
+            { keywords: ['stok','stok yönetimi','envanter'], responses: [
+                'Stok seviyelerini haftalık olarak kontrol edin ve ABC analiziyle kritik SKU’ları önceliklendirin.',
+                'Güvenlik stokunu belirlerken tedarik süresini ve beklenen talep dalgalanmasını göz önünde bulundurun.',
+                'Sezonluk ürünler için erken sipariş planlaması yaparak tedarik gecikmelerini azaltabilirsiniz.',
+                'Stok fazlası olan ürünlere yönelik indirim kampanyalarıyla likiditeyi artırın ve depolama maliyetini düşürün.',
+                'FIFO/LIFO kullanımını gözden geçirip maliyet-etkin olanı seçin; özellikle maliyet dalgalanmalarında etkilidir.',
+                'Satış hızı düşük ürünleri tanımlayıp tedarik frekansını azaltarak stok maliyetlerini düşürebilirsiniz.',
+                'Otomatik yeniden sipariş (reorder point) kuralları kurarak stokouts riskini azaltın.'
+            ]},
+
+            { keywords: ['satış','ciro','pazarlama','kampanya'], responses: [
+                'Müşteri segmentasyonuna göre kişiselleştirilmiş kampanyalar uygulayarak dönüşüm oranını artırabilirsiniz.',
+                'Önceki kampanya verilerini analiz edip en yüksek ROI veren kanallara bütçe aktarın.',
+                'Satış hunisini netleştirip her aşama için ölçülebilir hedefler koyun.',
+                'Çapraz satış (cross-sell) ve üst satış (upsell) fırsatlarını otomatikleştirmek gelir başına kazanımı yükseltir.',
+                'Satış ekibine haftalık mikro-eğitimler vererek kapanış oranlarını iyileştirin.',
+                'Satış performansını etkileyen en kritik 3 metriği tanımlayıp dashboarda ekleyin.'
+            ]},
+
+            { keywords: ['finans','nakit','kasa','bütçe','maliyet'], responses: [
+                'Nakit akışınızı 13 haftalık projeksiyonla takip ederek kısa vadeli açıkları önleyin.',
+                'Maliyet kalemlerinizi kategorize edip en yüksek maliyetli süreçleri optimize edin.',
+                'Fatura vade yönetimi ve erken ödeme indirimleri ile net karı artırabilirsiniz.',
+                'Kârlılık analizi yaparak ürün bazında marj iyileştirme fırsatları tespit edin.',
+                'Döviz pozisyonu varsa hedge stratejilerini basit senaryolarla test edin.',
+                'Kısa vadeli kredi maliyetlerini azaltmak için tedarikçi ile vade pazarlığı yapmayı düşünün.'
+            ]},
+
+            { keywords: ['operasyon','verimlilik','süreç','lojistik'], responses: [
+                'Tekrarlayan görevleri otomasyonla azaltarak çalışan verimliliğini artırın.',
+                'Proses haritası çıkarıp darboğazları ölçün; en büyük gecikme nedenlerine odaklanın.',
+                'Tedarikçi performans metrikleri oluşturun ve düzenli geri bildirim verin.',
+                'Depo düzeni ve yerleşim optimizasyonu ile işlem sürelerini kısaltabilirsiniz.',
+                'Siparişten teslimata geçen süreyi (lead time) ölçerek hedefler koyun ve iyileştirin.',
+                'KPI bazlı küçük iyileştirme ekipleri (Kaizen) kurarak sürekli iyileştirme başlatın.'
+            ]},
+
+            { keywords: ['müşteri','şikayet','destek','churn','sadakat'], responses: [
+                'En sık tekrar eden müşteri şikayetlerini raporlayıp, ürün ve süreç iyileştirmesi yapın.',
+                'Sadakat programlarıyla tekrarlayan alımları teşvik edin ve müşteri ömrü değerini (LTV) artırın.',
+                'Proaktif destek çağrılarını planlayarak churn riskini azaltabilirsiniz.',
+                'Müşteri geri bildirimlerini kısa döngülerde toplayıp hızlı aksiyon alın.',
+                'Destek süreçleri için SLO/SLA belirleyip performansı ölçün ve hedefleyin.',
+                'Net Promoter Score (NPS) gibi basit anketlerle memnuniyeti düzenli izleyin.'
+            ]},
+
+            { keywords: ['tedarik','tedarikçi','satın alma','tedarik zinciri'], responses: [
+                'Tedarikçi çeşitlendirmesiyle tedarik riskini azaltın ve alternatif kaynaklar oluşturun.',
+                'Tedarikçi performans skorları ile kritik tedarikçilere öncelik verin.',
+                'Uzun vadeli sözleşmelerde performans göstergelerine dayalı fiyatlandırma şartları ekleyin.',
+                'Tedarik süreçlerini dijitalleştirip sipariş hatalarını azaltın.',
+                'Talep öngörüsü paylaşarak tedarikçinizle daha iyi planlama yapın ve maliyetleri düşürün.'
+            ]},
+
+            { keywords: ['insan kaynakları','personel','işe alım','performans'], responses: [
+                'Aday deneyimini iyileştirerek işe alım sürelerini kısaltın.',
+                'Performans hedeflerini açık ve ölçülebilir tutun; düzenli değerlendirme yapın.',
+                'Eğitim planları ile yetkinlik boşluklarını kapatın ve iç terfi oranını artırın.',
+                'Vardiya ve kaynak planlamasını veriyle destekleyerek aşırı mesai maliyetini azaltın.',
+                'Yedekleme planları (succession planning) oluşturarak kritik roller için hazır yetkinlikler geliştirin.'
+            ]},
+
+            { keywords: ['fiyat','fiyatlandırma','marj','rekabet'], responses: [
+                'Dinamik fiyatlama ile talep ve stok durumuna göre fiyatları optimize edin.',
+                'Rakip fiyat takibi yaparak anlık fiyat stratejileri geliştirin.',
+                'Maliyet tabanlı değil değer tabanlı fiyatlama düşünün; segment bazlı fiyat farklılaştırması uygulayın.',
+                'Promosyonların marj üzerindeki etkisini her kampanya sonrası ölçün.',
+                'Fiyat esnekliği testleri ile hangi segmentlerin fiyat artışına dirençli olduğunu ölçün.'
+            ]},
+
+            { keywords: ['rapor','kpi','gösterge','dashboard'], responses: [
+                'En kritik 5 KPI’yı belirleyip yönetim panelinde öne çıkarın.',
+                'Gerçek zamanlı raporlar yerine haftalık trend analizleri ile daha sağlam kararlar alın.',
+                'KPI hedeflerini SMART kriterine göre belirleyin ve sorumluluk atayın.',
+                'Veri tutarlılığı için kaynakları standartlaştırın ve veri doğrulama adımları ekleyin.',
+                'Dashboardlarınızı hedef kitleye göre sadeleştirip karar alma hızını artırın.'
+            ]},
+
+            { keywords: ['pazarlama dijital','seo','sosyal medya','performans pazarlama'], responses: [
+                'Hedef kitleye yönelik içerik takvimi oluşturarak marka etkileşimini artırın.',
+                'Reklam harcaması optimizasyonu (ROAS) için düşük performanslı kampanyaları durdurun.',
+                'SEO yatırımınızı uzun kuyruklu anahtar kelimelerle destekleyin ve içerik stratejisi oluşturun.',
+                'E-posta otomasyonları ile tekrar satın alma oranlarını yükseltin.',
+                'Performans kampanyalarında A/B testleri düzenleyerek en etkili kreatifi bulun.'
+            ]},
+
+            { keywords: ['teknoloji','yazılım','otomasyon','dijitalleşme'], responses: [
+                'En acil otomasyon fırsatlarını belirleyip POC ile hızlıca test edin.',
+                'Bulut tabanlı çözümlerle ölçeklenebilirliği ve bakım kolaylığını artırın.',
+                'Veri entegrasyonunu merkezileştirerek raporlama zamanını kısaltın.',
+                'Küçük adımlarla dijital dönüşüm başlatın; her adımı ölçüp öğrenin.',
+                'Güvenlik ve yedekleme prosedürlerini proje başlangıcında planlayın; veri kaybı riski düşer.'
+            ]},
+
+            { keywords: ['sigorta','hasar','pricing'], responses: [
+                'Görüntü işleme ile hasar tespit süreçlerini hızlandırabilirsiniz.',
+                'Dinamik poliçe fiyatlandırması risk profiline göre uyarlanmalı.',
+                'Hasar süreçlerindeki tekrar eden maliyetleri analiz ederek önleyici adımlar geliştirin.',
+                'Otomatik belge sınıflandırma ile hasar dosyası işleme süresini kısaltın.'
+            ]},
+
+            { keywords: ['enerji','tüketim','bakım'], responses: [
+                'Yük tahmini ve talep yönetimi ile alım maliyetlerini azaltabilirsiniz.',
+                'Kestirimci bakım ile arızaları önceden tespit edip kesinti sürelerini azaltın.',
+                'Enerji verimliliği önlemleri ile operasyonel maliyetleri düşürün ve sürdürülebilirlik hedeflerine katkıda bulunun.'
+            ]},
+
+            { keywords: ['sağlık','hastane','randevu'], responses: [
+                'Hasta akışını optimize ederek bekleme sürelerini azaltın ve memnuniyeti artırın.',
+                'Randevu doluluk oranlarını analiz edip esnek personel planlaması yapın.',
+                'Uzaktan takip ve triage ile acil olmayan hasta yükünü azaltabilirsiniz.'
+            ]},
+
+            { keywords: ['turizm','otel','konaklama'], responses: [
+                'Dinamik fiyatlama ile sezonluk talebe göre gelirleri maksimize edin.',
+                'Online yorumları yakından takip edip hizmet iyileştirmelerine dönüştürün.',
+                'Paket ve deneyim odaklı teklifler ile ortalama rezervasyon değerini artırın.'
+            ]},
+
+            { keywords: ['telekom','abonelik','network'], responses: [
+                'Abonelik iptal risklerini erken tespit edip proaktif teklifler sunun.',
+                'Kestirimci bakım ile ağ kesintilerini minimuma indirin.',
+                'Kullanım desenlerine göre kişiselleştirilmiş tarifeler sunarak gelir çeşitlendirmesi sağlayın.'
+            ]},
+
+            { keywords: ['e-ticaret','e ticaret','shopify','woocommerce','hepsiburada','trendyol'], responses: [
+                'Sepet terk etme oranlarını azaltmak için e-posta ve push ile otomatik geri kazanım akışları kurun.',
+                'Ürün sayfalarında 3 güçlü görsel + kısa fayda açıklaması kullanın; dönüşüm artışı sağlar.',
+                'Kargo ve iade süreçlerini netleştirip bekleme sürelerini kısaltarak müşteri memnuniyetini artırın.',
+                'Kanal bazlı performans takibi yaparak hangi platformlarda yatırım artırılacağını belirleyin.'
+            ]},
+
+            { keywords: ['b2b','toptan','wholesale','ticari satış'], responses: [
+                'B2B satışta teklif sürecini hızlandırmak için fiyatlandırma şablonları ve otomatik onay akışları kullanın.',
+                'Hesap bazlı satış (ABM) stratejileri ile yüksek değerli müşterilere odaklanın.',
+                'Ödeme vadelerini optimize etmek için erken ödeme indirimleri ve vadeli alışveriş paketleri sunun.'
+            ]},
+
+            { keywords: ['ödeme','pos','fraud','dolandırıcılık','ödeme sistemi'], responses: [
+                'Ödeme başarısızlıklarını azaltmak için alternatif ödeme yöntemleri ve retry mekanizmaları ekleyin.',
+                'Fraud tespiti için temel kural tabanlı filtreler kurun; şüpheli işlemleri manuel incelemeye gönderin.',
+                'İade ve chargeback oranlarını takip edip sık iade alan ürünleri tanımlayın.'
+            ]},
+
+            { keywords: ['crm','müşteri ilişkileri','satis yazılımı','müşteri yönetimi'], responses: [
+                'CRM verinizi temizleyip standart formatta tutarak kişiselleştirmeyi etkinleştirin.',
+                'Satış ve destek süreçlerini CRM içinde birleştirerek müşteri geçmişine hızlı erişim sağlayın.',
+                'Otomatik görev atamaları ile lead takibini güçlendirin.'
+            ]},
+
+            { keywords: ['erp','entegrasyon','muhasebe','faturalama'], responses: [
+                'ERP entegrasyonlarıyla stok, sipariş ve finans verisini senkronize ederek manuel giriş hatalarını azaltın.',
+                'Faturalama süreçlerini otomatikleştirip e-arşiv/e-fatura uyumluluğunu sağlayın.',
+                'Muhasebe entegrasyonu ile kapanış süreçlerini hızlandırabilirsiniz.'
+            ]},
+
+            { keywords: ['vergiler','e-arşiv','uyumluluk','regülasyon'], responses: [
+                'Vergi ve düzenleyici gereksinimleri erken kontrol ederek ceza riskini düşürün.',
+                'E-arşiv/efatura süreçlerini standartlaştırıp belge doğrulama adımları ekleyin.'
+            ]},
+
+            { keywords: ['bi','iş zekası','raporlama','insights','dashboard'], responses: [
+                'BI projelerinde önce en yüksek etkiye sahip raporu yapıp hızlı kazanım sağlayın.',
+                'Veri kalite kontrolleri ekleyerek dashboardlardaki sapmaları azaltın.',
+                'KPI trend analizleri ile öngörülü aksiyonlar belirleyin.'
+            ]},
+
+            { keywords: ['ml','makine öğrenmesi','model','tahmin','öngörü'], responses: [
+                'Basit bir talep tahmini modeli ile stok optimizasyonu için başlangıç yapın.',
+                'Model doğrulama için A/B veya shadow testleri uygulayın; canlı kararları yavaşça taşıyın.',
+                'Veri etiketleme süreçlerini standartlaştırarak model kalite maliyetini düşürün.'
+            ]},
+
+            { keywords: ['ux','ui','kullanıcı deneyimi','cx','deneyim'], responses: [
+                'Ana sayfa ve ürün sayfası akışını test edip en sık yapılan görevleri sadeleştirin.',
+                'Kullanıcı geri bildirimlerini kısa anketlerle toplayıp hızlı iterasyonlar yapın.',
+                'Mobil deneyimi iyileştirerek dönüşüm kaybını azaltın.'
+            ]},
+
+            { keywords: ['growth','growth hacking','performans büyüme','hızlı büyüme'], responses: [
+                'Küçük, ölçülebilir deneyler yaparak hangi kanalların ölçeklendiğini test edin.',
+                'Viral veya referans programlarıyla organik büyümeyi destekleyin.',
+                'Onboarding optimizasyonu ile kullanıcı aktivasyon oranını artırın.'
+            ]},
+
+            { keywords: ['veri gizliliği','gdpr','kvkk','gizlilik','security','veri güvenliği'], responses: [
+                'Kişisel veri işleme envanteri çıkararak hangi verilerin nerede tutulduğunu bilin.',
+                'Temel erişim kontrolü (RBAC) ve loglama ile veri sızıntısı riskini azaltın.',
+                'Veri anonimleştirme ile analiz ihtiyacını gizlilikle dengeleyin.'
+            ]},
+
+            { keywords: ['startup','scaleup','yatırım','growth-stage'], responses: [
+                'Yatırımcı sunumu için 5 slaytta problem, çözüm, pazar, iş modeli ve finansal projeksiyon sunun.',
+                'İlk 100 müşteriyi kazanmak için düşük maliyetli kanallara odaklanın ve öğrenin.',
+                'Büyüme KPI’larını haftalık olarak takip edip aksiyon odaklı toplantılar yapın.'
+            ]},
+
+            { keywords: ['franchise','bayi','şube','franchising'], responses: [
+                'Franchise modeliniz için standart operasyon el kitabı hazırlayın; eğitim ve kalite kontrol önemli.',
+                'Bayi seçim kriterleri ve performans izleme metrikleri belirleyerek marka tutarlılığı sağlayın.'
+            ]},
+
+            { keywords: ['omni','omnichannel','çok kanallı','çokkanal'], responses: [
+                'Online ve fiziksel kanallar arasında stok ve kampanya senkronizasyonu kurun.',
+                'Müşteri yolculuğunu kanallar arası takip ederek kopma noktalarını kapatın.'
+            ]},
+
+            { keywords: ['influencer','influencer pazarlama','kampanya işbirliği'], responses: [
+                'Mikro-influencerlarla başlamak genellikle yüksek etkileşim ve düşük maliyet sağlar.',
+                'İşbirliklerinde performans hedefleri (satış, trafik, etkileşim) açıkça belirleyin.'
+            ]},
+
+            { keywords: ['çağrı merkezi','callcenter','support','destek'], responses: [
+                'İlk çağrıda çözüm oranını artırmak için self-servis kaynakları ve agent eğitimleri oluşturun.',
+                'Çağrı dağılımı ve bekleme sürelerini izleyip SLA hedefleri belirleyin.'
+            ]},
+
+            { keywords: ['sadakat','loyalty','puan sistemi','abonelik programı'], responses: [
+                'Sadakat programı tasarlarken basit, anlaşılır ve ödül odaklı mekanizmalar kullanın.',
+                'Segmentlere özel teklifler ile program etkinliğini artırabilirsiniz.'
+            ]},
+
+            { keywords: ['cvr','dönüşüm','cRO','cvr optimization','conversion'], responses: [
+                'A/B testleri ile en iyi başlık, görsel ve çağrı-metnini belirleyin.',
+                'Hızlı yüklenen ve net CTA içeren sayfalar dönüşümü artırır; sayfa hızını önceliklendirin.'
+            ]},
+
+            { keywords: ['ürün yönetimi','product','roadmap','ürün stratejisi'], responses: [
+                'Kullanıcı geri bildirimlerine dayalı olarak önceliklendirilmiş bir roadmap oluşturun.',
+                'Metrikler ile ürün başarısını tanımlayın: aktivasyon, tutundurma, gelir.'
+            ]},
+
+            { keywords: ['pr','public relations','kriz iletişimi','basın'], responses: [
+                'Kriz senaryoları için hazır mesaj taslakları ve onay süreçleri oluşturun.',
+                'Basın ilişkileri için düzenli bülten takvimi ve medya listesi tutun.'
+            ]},
+
+            { keywords: ['m&a','satın alma','fusion','birleşme','devir'], responses: [
+                'M&A sürecinde temel hedefleri ve değer yaratma sinerjilerini önceden belirleyin.',
+                'Due diligence için finansal, operasyonel ve teknik kontrol listeleri hazırlayın.'
+            ]},
+
+            { keywords: ['yerelleştirme','lokalizasyon','çeviri','multilingual'], responses: [
+                'Hedef pazarlara uygun yerelleştirme stratejileri ile kullanıcı kabulünü hızlandırın.',
+                'Tarih, para birimi ve kültürel farklılıklara dikkat ederek içerik uyarlaması yapın.'
+            ]},
+
+            { keywords: ['sürdürülebilirlik','esg','çevre','sosyal','governance'], responses: [
+                'Sürdürülebilirlik girişimlerinizi kısa ve ölçülebilir hedeflere çevirin.',
+                'Enerji verimliliği ve atık azaltma projeleri ile operasyonel maliyetleri düşürebilirsiniz.'
+            ]},
+
+            { keywords: ['erişilebilirlik','accessibility','a11y','engelli'], responses: [
+                'Web erişilebilirliği için temel WCAG kriterlerini uygulayarak daha geniş kitleye erişin.',
+                'Form etiketleri, kontrast ve klavye navigasyonu gibi düşük maliyetli iyileştirmelerle başlayın.'
+            ]},
+
+            { keywords: ['tedarik stratejisi','strategic sourcing','supplier strategy'], responses: [
+                'Maliyet yerine toplam tedarik maliyetini (TCO) değerlendirerek tedarikçi seçin.',
+                'Uzun vadeli iş ortaklıkları için performans bazlı KPI’lar ve ödül mekanizmaları kurun.'
+            ]},
+
+            { keywords: ['hizmet sektörü','horeca','restaurant','kafe'], responses: [
+                'Menü optimizasyonu ve maliyet kontrolü ile brüt marjı iyileştirin.',
+                'Rezervasyon ve müşteri akışını veriyle yöneterek personel planlamasını optimize edin.'
+            ]},
+
+            { keywords: ['müşteri-şablon','şablon','özelleştirme','müşteri veri'], responses: [
+                'Merhaba {{company}}, hızlı bir öneri: Önümüzdeki 3 ay için stok rotasyonunu %15 iyileştirmek adına ABC analizi ve tedarikçi teslim sürelerine göre yeniden sipariş kuralları oluşturmanızı öneririm.',
+                '{{company}} için kısa aksiyon: Müşteri segmentlerine göre aylık kampanyalar planlayın; ilk 3 kampanya için hedef ROAS ve KPI belirleyin.',
+                'İş planı özeti (kısa): Hedef: %10 brüt marj artışı; Adımlar: maliyet kalemlerini yeniden müzakere et, düşük performanslı SKU’ları azalt, dinamik fiyat uygulaması başlat.',
+                'Örnek rapor şablonu: Aylık gelir, sipariş sayısı, ort. sipariş değeri, stok devir hızı, en çok şikayet alan 5 ürün.'
+            ]},
+
+            { keywords: ['eğitim','egitim','okul','kurs','üniversite','university','academy'], responses: [
+                'Eğitim kurumlarında başarıyı artırmak için kişiselleştirilmiş öğrenme yolları ve erken uyarı sistemleri kurun.',
+                'Kayıt optimizasyonu için promosyon zamanlamasını ve hedef kitleyi test edin.'
+            ]},
+
+            { keywords: ['inşaat','insaat','construction','konut','müteahhit'], responses: [
+                'İnşaat projelerinde tedarik sürelerini ve izin süreçlerini proje başlangıcında netleştirin.',
+                'Şantiye iş güvenliği ve kalite kontrol planlarını standartlaştırın.'
+            ]},
+
+            { keywords: ['gayrimenkul','emlak','real estate','estate','property'], responses: [
+                'Gayrimenkulde bölgesel talep analizleri ile yatırım fırsatlarını değerlendirin.',
+                'Kiralama ve satış sürecindeki sürtüşme noktalarını düzenleyerek müşteri deneyimini iyileştirin.'
+            ]},
+
+            { keywords: ['ilaç','pharma','pharmaceutical','medical devices','medtech'], responses: [
+                'İlaç sektöründe regülasyon ve klinik veri yönetimini baştan planlayın; uyumluluk kritik.',
+                'Medikal cihaz tedariki ve bakım süreçlerini izleyin; sertifikasyon gereksinimlerini takip edin.'
+            ]},
+
+            { keywords: ['etkinlik','event','organizasyon','konferans','konser'], responses: [
+                'Etkinlik planlamasında biletleme, lojistik ve iletişim zincirini entegre planlayın.',
+                'Konuşmacı ve sponsorluk anlaşmalarını sözleşme şablonlarıyla hızlandırın.'
+            ]},
+
+            { keywords: ['medya','yayın','publishing','tv','radyo','broadcast'], responses: [
+                'Medya planlamasında hedef kitle ve reach optimizasyonu ile bütçe verimliliği sağlayın.',
+                'İçerik takvimi ve dağıtım stratejileri ile izleyici bağlılığını artırın.'
+            ]},
+
+            { keywords: ['legal','hukuk','sözleşme','avukat','regülasyon hukuku'], responses: [
+                'Temel sözleşme şablonları ve onay süreci kurarak hukuki riskleri azaltın.',
+                'Yeniden pazarlama ve KVKK/GDPR uyumluluğu için veri işleme şartlarını netleştirin.'
+            ]},
+
+            { keywords: ['ar-ge','r&d','arge','inovasyon','araştırma'], responses: [
+                'Küçük POC’ler ile fikirleri test edip başarı olasılığı yüksek projelere yatırım yapın.',
+                'AR-GE harcamalarını verimli yönetin; dış destek ve hibeleri araştırın.'
+            ]},
+
+            { keywords: ['imalat','fabrika','üretim','manufacturing','production'], responses: [
+                'Üretim hattı verimliliğini ölçerek OEE (Overall Equipment Effectiveness) iyileştirin.',
+                'Kalite kontrol süreçlerini sıklaştırıp hata maliyetlerini azaltın.'
+            ]},
+
+            { keywords: ['otomotiv','otomobil','araç','fleet','fleet management'], responses: [
+                'Filo yönetiminde bakım takvimi ve telemetri ile operasyon maliyetlerini düşürün.',
+                'Parça tedarik sürelerini göz önüne alarak bakım stoğunu optimize edin.'
+            ]},
+
+            { keywords: ['tarım','agribusiness','agriculture','çiftlik'], responses: [
+                'Ürün rotasyonu ve mevsimselliğe göre stok ve satış planlaması yapın.',
+                'Girdi maliyetlerini takip edip verim artırıcı uygulamalarla kârlılığı iyileştirin.'
+            ]},
+
+            { keywords: ['fmcg','hızlı tüketim','perakende hızlı tüketim'], responses: [
+                'Hızlı tüketim ürünlerinde raf ömrü ve tedarik hızını optimize ederek fireyi azaltın.',
+                'Promosyonların sıklığını analiz edip marj üzerindeki etkisini yönetin.'
+            ]},
+
+            { keywords: ['last mile','last-mile','son mil','sonmil'], responses: [
+                'Son mil teslimat optimizasyonu ile teslimat maliyetlerini ve teslimat süresini azaltın.',
+                'Müşteri bilgilendirme akışları ile teslimat memnuniyetini artırın.'
+            ]},
+
+            { keywords: ['marketplace','pazar yeri','dropshipping','pazar'], responses: [
+                'Marketplace entegrasyonları için stok ve fiyat senkronizasyonu kritik; otomasyon kurun.',
+                'Dropshipping modellerinde tedarikçi güvenilirliğini ve teslimat süresini test edin.'
+            ]},
+
+            { keywords: ['subscription model','subscription','recurring','abonelik modeli','tekrarlayan gelir'], responses: [
+                'Abonelik modellerinde churn azaltma için onboarding ve değer gösterimi kritik.',
+                'İlk 30 gün içindeki aktiviteye odaklanıp ilk faturalamaya kadar kullanıcıyı tutun.'
+            ]},
+
+            { keywords: ['saas','software as a service','bulut','cloud costs','cloud'], responses: [
+                'Bulut maliyetlerini izleyip soğuk veri/aktif veri ayrımı yaparak maliyeti düşürün.',
+                'SaaS ürününde müşteri aktivasyon ve retention metriklerini takip edin.'
+            ]},
+
+            { keywords: ['devops','ci/cd','observability','monitoring','ops'], responses: [
+                'CI/CD ile sürüm riskini azaltın; gözlemlenebilirlik (observability) ekleyin.',
+                'Uyarı yorgunluğunu azaltacak kritik eşik ve playbook’lar belirleyin.'
+            ]},
+
+            { keywords: ['fintech','bankacılık','bank','kredi','ödünç'], responses: [
+                'Kredi riski temel metriklerle izlenip, skor tabanlı yaklaşımlar kullanılabilir.',
+                'Fintech projelerinde regülasyon ve lisans gerekliliklerini erken değerlendirin.'
+            ]},
+
+            { keywords: ['factoring','faktoring','invoice','finansman','finansman çözümleri'], responses: [
+                'Tedarikçi finansmanı ve factoring seçenekleri ile nakit akışınızı iyileştirebilirsiniz.',
+                'Fatura teminatlı finansman modellerini maliyet-benefit açısından değerlendirin.'
+            ]},
+
+            { keywords: ['route optimization','rota','sevkiyat planlama','rota optimizasyonu'], responses: [
+                'Rota optimizasyonu ile teslimat maliyetlerini düşürüp araç verimliliğini artırın.',
+                'Günlük planlama ve araç yük kapasitesini dengeleyin.'
+            ]},
+
+            { keywords: ['blockchain','kripto','web3','token'], responses: [
+                'Blockchain çözümleri için uygulanabilirlik ve maliyet analizleri yapın; pilot projelerle başlayın.',
+                'Kripto ödemeleri kabul etmek operasyonel, regülasyon ve muhasebe etkilerini değerlendirir.'
+            ]},
+
+            { keywords: ['iot','nesnelerin interneti','edge','sensör'], responses: [
+                'IoT projelerinde veri güvenliği ve bağlantı maliyetlerini önceden planlayın.',
+                'Sensör veri kalitesini doğrulayarak otomasyon kararlarını güvenilir hale getirin.'
+            ]},
+
+            { keywords: ['genel','yardım','öneri'], responses: [
+                'Soru ve önceliğinizi kısaca yazarsanız size en uygun tavsiyeyi hızlıca paylaşırım.',
+                'İşinizin ana zorluk alanını ve hedefinizi belirtirseniz, somut adımlar önerebilirim.',
+                'Hızlı bir durum değerlendirmesi isterseniz sektörünüz, yıllık ciro aralığınız ve öncelikleriniz faydalı olur.',
+                'Eğer isterseniz örnek bir 30-60-90 gün aksiyon planı hazırlayabilirim; sektör ve hedeflerinizi belirtin.'
+            ]}
+        ];
+
+        function findResponsesForPrompt(prompt) {
+            function normalizeText(s) {
+                if (!s) return '';
+                const map = { 'ı':'i','İ':'i','ş':'s','Ş':'s','ğ':'g','Ğ':'g','ü':'u','Ü':'u','ö':'o','Ö':'o','ç':'c','Ç':'c' };
+                return s.toString().toLowerCase().split('').map(ch => map[ch] || ch).join('');
+            }
+
+            const text = normalizeText(prompt);
+            const matched = [];
+            cannedResponses.forEach(bucket => {
+                for (const kw of bucket.keywords) {
+                    const normKw = normalizeText(kw);
+                    if (normKw && text.includes(normKw)) {
+                        matched.push(...bucket.responses);
+                        break;
+                    }
+                }
+            });
+            return matched;
+        }
+
+        // Bu fonksiyon eski API çağrısı yerine kullanılıyor.
         async function callGeminiAPI(prompt) {
-            if (!apiKey) {
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        resolve("⚠️ **Demo Modu:** API anahtarı algılanamadı. Ancak sorunuz ('" + prompt + "') için şunu söyleyebilirim: Yapay zeka modülümüz bu veriyi analiz ederek %15 maliyet tasarrufu sağlayabilir.");
-                    }, 1000);
-                });
+            // Eşleşen cevapları al
+            const matches = findResponsesForPrompt(prompt);
+
+            // Eğer eşleşme yoksa 'genel' kategorisinden veya fallback'ten cevap seç
+            if (!matches || matches.length === 0) {
+                const generic = cannedResponses.find(c => c.keywords.includes('genel'))?.responses || cannedResponses.flatMap(c=>c.responses);
+                const pick = generic[Math.floor(Math.random() * generic.length)];
+                return pick;
             }
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: "Sen Dijital CEO asistanısın. KOBİ yöneticilerine finans, satış, stok ve operasyon konularında kısa, net, stratejik ve veriye dayalı tavsiyeler verirsin. Yanıtların profesyonel, Türkçe ve teşvik edici olsun." }] }
-            };
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) throw new Error("API Hatası");
-                const data = await response.json();
-                return data.candidates?.[0]?.content?.parts?.[0]?.text || "Yanıt alınamadı.";
-            } catch (e) {
-                return "Bağlantı hatası oluştu.";
-            }
+            // Eşleşenlerden rastgele 1-3 cümle seçip birleştir
+            const shuffled = matches.sort(() => 0.5 - Math.random());
+            const take = Math.min(3, shuffled.length);
+            const selected = shuffled.slice(0, take);
+            return selected.join('\n\n');
         }
 
         // Chat Logic
