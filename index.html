@@ -33,9 +33,21 @@
                     },
                     colors: {
                         bg: {
-                            main: '#020617', // Slate 950
-                            card: '#0f172a', // Slate 900
-                            hover: '#1e293b', // Slate 800
+                            main: '#15406f',
+                            card: '#1b4a7f',
+                            hover: '#245a96',
+                        },
+                        // İş mavisi palet: slate tonları lacivert yerine ferah kurumsal maviye çekildi
+                        slate: {
+                            200: '#e8eef6',
+                            300: '#d6e1ee',
+                            400: '#b4c6dc',
+                            500: '#94abc8',
+                            600: '#6f8db3',
+                            700: '#336aa3',
+                            800: '#255a92',
+                            900: '#1b4a7f',
+                            950: '#123862',
                         },
                         brand: {
                             400: '#60a5fa',
@@ -89,7 +101,7 @@
                         }
                     },
                     backgroundImage: {
-                        'grid-pattern': "linear-gradient(to right, #1e293b 1px, transparent 1px), linear-gradient(to bottom, #1e293b 1px, transparent 1px)",
+                        'grid-pattern': "linear-gradient(to right, #2a5f99 1px, transparent 1px), linear-gradient(to bottom, #2a5f99 1px, transparent 1px)",
                     }
                 }
             }
@@ -97,8 +109,10 @@
     </script>
     <style>
         body {
-            background-color: #020617;
-            color: #e2e8f0;
+            background-color: #15406f;
+            background-image: linear-gradient(180deg, #1b4f88 0%, #15406f 45%, #123862 100%);
+            background-attachment: fixed;
+            color: #e8eef6;
             overflow-x: hidden;
         }
         
@@ -109,11 +123,11 @@
         }
 
         .glass-panel {
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 30px rgba(8, 30, 60, 0.18);
         }
 
         .gradient-text {
@@ -177,7 +191,7 @@
         /* Scrollbar for chat */
         #demo-chat-history::-webkit-scrollbar { width: 6px; }
         #demo-chat-history::-webkit-scrollbar-track { background: transparent; }
-        #demo-chat-history::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        #demo-chat-history::-webkit-scrollbar-thumb { background: #4a7bb3; border-radius: 3px; }
 
         /* Video Background Container */
         .video-bg-container {
@@ -208,8 +222,8 @@
             height: 100%;
             object-fit: cover;
             z-index: -1;
-            opacity: 0.6;
-            filter: brightness(0.4);
+            opacity: 0.35;
+            filter: brightness(0.9) saturate(0.8);
         }
         
         /* Ensure content is above video */
@@ -217,6 +231,31 @@
             position: relative;
             z-index: 10;
         }
+        /* Dijital CEO paneli: robot imleç */
+        #robot-cursor {
+            position: absolute; top: 0; left: 0; z-index: 30; pointer-events: none;
+            transition-property: transform, opacity;
+            transition-timing-function: cubic-bezier(.22, 1, .36, 1);
+            will-change: transform;
+            filter: drop-shadow(0 4px 10px rgba(8, 30, 60, .45));
+        }
+        #robot-cursor.is-parked { opacity: .0; transition-duration: 300ms !important; }
+        #robot-cursor .rc-arrow { transition: transform .15s ease; transform-origin: 4px 2px; }
+        #robot-cursor.is-clicking .rc-arrow { transform: scale(.8); }
+        #robot-cursor .rc-badge {
+            position: absolute; left: 16px; top: 18px; width: 28px; height: 28px; border-radius: 9999px;
+            background: linear-gradient(135deg, #2563eb, #06b6d4); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid rgba(255,255,255,.85);
+            box-shadow: 0 0 14px rgba(59,130,246,.7);
+        }
+        .robot-ripple {
+            position: absolute; left: -12px; top: -12px; width: 30px; height: 30px; border-radius: 9999px;
+            border: 2px solid #60a5fa; animation: robotRipple .6s ease-out forwards;
+        }
+        @keyframes robotRipple { from { transform: scale(.3); opacity: 1; } to { transform: scale(1.7); opacity: 0; } }
+        .ceo-caret::after { content: ''; display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -2px; background: #60a5fa; animation: ceoBlink 1s step-end infinite; }
+        @keyframes ceoBlink { 50% { opacity: 0; } }
     </style>
 </head>
 <body class="antialiased selection:bg-brand-500 selection:text-white relative">
@@ -372,184 +411,89 @@
                                 <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-scan"></div>
                                 <span class="flex items-center gap-2">Ürünleri İncele <i data-lucide="chevron-right" class="w-5 h-5"></i></span>
                             </button>
-                            <button onclick="navigateTo('cozumler')" class="px-8 py-4 bg-black/40 backdrop-blur border border-white/20 hover:border-white text-slate-200 hover:text-white rounded-xl font-bold text-lg transition flex items-center justify-center gap-2">
+                            <button onclick="navigateTo('cozumler')" class="px-8 py-4 bg-white/10 backdrop-blur border border-white/20 hover:border-white text-slate-200 hover:text-white rounded-xl font-bold text-lg transition flex items-center justify-center gap-2">
                                 <i data-lucide="terminal" class="w-5 h-5"></i> Özellikler
                             </button>
                         </div>
                     </div>
 
-                    <!-- PROMPT BASED LIVE DEMO VISUAL (FUNCTIONAL CHAT) -->
-                    <div class="relative mx-auto w-full max-w-4xl animate-float">
-                        <div class="glass-panel rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative h-[500px] flex flex-col bg-slate-900/90">
-                             <!-- Chat Header -->
-                             <div class="h-12 bg-slate-900/80 border-b border-white/5 flex items-center justify-between px-4">
-                                <div class="flex items-center gap-2 text-slate-300 font-mono text-sm">
+                    <!-- DİJİTAL CEO KONTROL PANELİ (Robot imleç ile otomatik demo) -->
+                    <div class="relative mx-auto w-full max-w-5xl animate-float">
+                        <div id="ceo-panel" class="glass-panel rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative bg-slate-900/80 select-none">
+                            <!-- Panel Header -->
+                            <div class="h-12 bg-slate-900/80 border-b border-white/5 flex items-center justify-between px-4 gap-3">
+                                <div class="flex items-center gap-2 text-slate-300 font-mono text-sm whitespace-nowrap">
                                     <div class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e]"></div> Dijital CEO - Canlı Mod
                                 </div>
-                                
-                                <!-- Tab Switcher -->
-                                <div class="flex bg-slate-800 rounded-lg p-1 gap-1">
-                                    <button onclick="switchDemoTab('chat')" id="tab-chat" class="px-3 py-1 rounded text-xs font-medium bg-brand-600 text-white transition-all">Chat</button>
-                                    <button onclick="switchDemoTab('reports')" id="tab-reports" class="px-3 py-1 rounded text-xs font-medium text-slate-400 hover:text-white transition-all flex items-center gap-1">
-                                        <i data-lucide="bar-chart-3" class="w-3 h-3"></i> Raporlar
-                                    </button>
+                                <div class="flex items-center gap-2 min-w-0 px-3 py-1 rounded-full bg-brand-500/15 border border-brand-500/30 text-[11px] text-brand-300">
+                                    <i data-lucide="bot" class="w-3.5 h-3.5 shrink-0 animate-pulse"></i>
+                                    <span id="ceo-status" class="truncate">Dijital CEO analiz ediyor…</span>
                                 </div>
-                             </div>
-                             
-                             <!-- Chat View -->
-                             <div id="demo-view-chat" class="flex flex-col h-full overflow-hidden">
-                                 <!-- Chat Area -->
-                                 <div id="demo-chat-history" class="flex-1 p-6 space-y-4 overflow-y-auto font-mono text-sm relative scroll-smooth">
-                                     <!-- Welcome Message -->
-                                     <div class="flex items-start gap-3">
-                                         <div class="w-8 h-8 rounded bg-brand-600/20 flex items-center justify-center text-brand-400 shrink-0"><i data-lucide="bot" class="w-5 h-5"></i></div>
-                                         <div class="bg-white/5 p-3 rounded-lg rounded-tl-none border border-white/5 text-slate-300 max-w-[90%]">
-                                             Hoş geldiniz. Şirket verilerinizi analiz ettim. Size nasıl yardımcı olabilirim? Örneğin: "Nakit akışını nasıl iyileştiririm?" veya "Stok fazlası olan ürünleri listele."
-                                         </div>
-                                     </div>
-                                 </div>
+                            </div>
 
-                                 <!-- Input Area (Functional) -->
-                                 <div class="p-4 bg-slate-900/50 border-t border-white/5">
-                                     <form id="demo-chat-form" class="relative">
-                                         <input type="text" id="demo-chat-input" placeholder="Dijital CEO'ya bir soru sorun..." class="w-full bg-slate-800 border border-slate-700 rounded-lg py-3 px-4 text-slate-200 focus:outline-none focus:border-brand-500 transition-colors placeholder:text-slate-600">
-                                         <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 text-brand-500 hover:text-brand-400 p-2">
-                                             <i data-lucide="send" class="w-5 h-5"></i>
-                                         </button>
-                                     </form>
-                                 </div>
-                             </div>
+                            <div class="flex flex-col sm:flex-row sm:h-[540px]">
+                                <!-- Sidebar (desktop) -->
+                                <aside class="hidden sm:flex w-52 shrink-0 flex-col border-r border-white/5 bg-slate-900/40 p-3">
+                                    <div class="text-[10px] font-bold tracking-widest text-slate-500 uppercase px-2 mb-2">Modüller</div>
+                                    <nav id="ceo-nav" class="space-y-1.5"></nav>
+                                    <div class="mt-auto rounded-xl p-3 bg-gradient-to-br from-brand-600 to-accent-500 text-white">
+                                        <div class="flex items-center gap-1.5 text-xs font-extrabold tracking-wider"><i data-lucide="crown" class="w-3.5 h-3.5"></i> CEO</div>
+                                        <div class="text-[10px] text-blue-100 mt-1 leading-snug">Dört modül birlikte: şirketin tam dijital beyni.</div>
+                                    </div>
+                                </aside>
+                                <!-- Module tabs (mobile) -->
+                                <div id="ceo-nav-mobile" class="sm:hidden flex gap-2 overflow-x-auto p-3 border-b border-white/5"></div>
 
-                             <!-- Reports View (Redesigned) -->
-                             <div id="demo-view-reports" class="hidden h-full w-full bg-slate-900 flex flex-col">
-                                 <!-- Report Toolbar -->
-                                 <div class="h-10 border-b border-white/5 bg-slate-800/50 flex items-center px-4 justify-between">
-                                     <div class="flex gap-2">
-                                         <div class="px-3 py-1 rounded bg-brand-500/20 text-brand-300 text-[10px] font-bold border border-brand-500/30">FİNANS</div>
-                                         <div class="px-3 py-1 rounded bg-white/5 text-slate-400 text-[10px] font-bold hover:bg-white/10 cursor-pointer">SATIŞ</div>
-                                         <div class="px-3 py-1 rounded bg-white/5 text-slate-400 text-[10px] font-bold hover:bg-white/10 cursor-pointer">İK</div>
-                                     </div>
-                                     <div class="text-[10px] text-slate-500 font-mono">SON GÜNCELLEME: 14:02</div>
-                                 </div>
+                                <!-- Main -->
+                                <main class="flex-1 min-w-0 p-4 sm:p-5 flex flex-col gap-4">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h3 id="ceo-title" class="text-xl font-extrabold text-white tracking-tight">CFO</h3>
+                                                <span id="ceo-area" class="text-xs font-semibold uppercase tracking-wider text-brand-400">Finans</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-500 mt-0.5">Son güncelleme: az önce · Demo veriler</p>
+                                        </div>
+                                        <div class="hidden md:flex items-center gap-1.5 text-[11px] text-slate-400 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5">
+                                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Son 6 ay + 2 ay tahmin
+                                        </div>
+                                    </div>
 
-                                 <!-- Report Content -->
-                                 <div class="flex-1 p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
-                                     <!-- Top KPIs -->
-                                     <div class="grid grid-cols-3 gap-3 mb-4">
-                                         <div class="bg-slate-800/50 p-3 rounded-lg border border-white/5">
-                                             <div class="text-[10px] text-slate-400 mb-1">Toplam Ciro</div>
-                                             <div class="text-lg font-bold text-white">₺4.2M</div>
-                                             <div class="text-[10px] text-green-400 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +18%</div>
-                                         </div>
-                                         <div class="bg-slate-800/50 p-3 rounded-lg border border-white/5">
-                                             <div class="text-[10px] text-slate-400 mb-1">Net Kâr</div>
-                                             <div class="text-lg font-bold text-white">₺850K</div>
-                                             <div class="text-[10px] text-green-400 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +12%</div>
-                                         </div>
-                                         <div class="bg-slate-800/50 p-3 rounded-lg border border-white/5">
-                                             <div class="text-[10px] text-slate-400 mb-1">Giderler</div>
-                                             <div class="text-lg font-bold text-white">₺1.1M</div>
-                                             <div class="text-[10px] text-red-400 flex items-center gap-1"><i data-lucide="trending-down" class="w-3 h-3"></i> -5%</div>
-                                         </div>
-                                     </div>
+                                    <!-- Sub tabs -->
+                                    <div id="ceo-subs" class="flex flex-wrap gap-1.5"></div>
 
-                                     <!-- Main Chart Area -->
-                                     <div class="bg-slate-800/30 p-4 rounded-xl border border-white/5 mb-4 relative overflow-hidden group">
-                                         <div class="flex justify-between items-center mb-4">
-                                             <h4 class="text-xs font-bold text-slate-300">Aylık Nakit Akışı</h4>
-                                             <i data-lucide="more-horizontal" class="w-4 h-4 text-slate-500"></i>
-                                         </div>
-                                         <!-- Simulated Bar Chart with CSS -->
-                                         <div class="flex items-end justify-between h-32 gap-2 px-2">
-                                             <!-- Bars -->
-                                             <div class="w-full bg-slate-700/50 h-[40%] rounded-t-sm hover:bg-brand-500/50 transition-colors relative group/bar">
-                                                 <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-[9px] text-white px-1 rounded opacity-0 group-hover/bar:opacity-100 transition">Oca</div>
-                                             </div>
-                                             <div class="w-full bg-slate-700/50 h-[55%] rounded-t-sm hover:bg-brand-500/50 transition-colors relative group/bar">
-                                                 <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-[9px] text-white px-1 rounded opacity-0 group-hover/bar:opacity-100 transition">Şub</div>
-                                             </div>
-                                             <div class="w-full bg-slate-700/50 h-[45%] rounded-t-sm hover:bg-brand-500/50 transition-colors relative group/bar">
-                                                 <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-[9px] text-white px-1 rounded opacity-0 group-hover/bar:opacity-100 transition">Mar</div>
-                                             </div>
-                                             <div class="w-full bg-slate-700/50 h-[70%] rounded-t-sm hover:bg-brand-500/50 transition-colors relative group/bar">
-                                                 <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-900 text-[9px] text-white px-1 rounded opacity-0 group-hover/bar:opacity-100 transition">Nis</div>
-                                             </div>
-                                             <div class="w-full bg-brand-500 h-[85%] rounded-t-sm shadow-[0_0_10px_rgba(59,130,246,0.5)] relative">
-                                                 <div class="absolute -top-5 left-1/2 -translate-x-1/2 text-[9px] text-brand-300 font-bold">May</div>
-                                             </div>
-                                             <!-- Forecast Bars (Dashed border look) -->
-                                             <div class="w-full border-x border-t border-dashed border-slate-600 h-[90%] rounded-t-sm opacity-50 relative group/bar">
-                                                 <div class="absolute top-2 left-1/2 -translate-x-1/2 text-[8px] text-slate-400 rotate-90 whitespace-nowrap">Tahmin</div>
-                                             </div>
-                                             <div class="w-full border-x border-t border-dashed border-slate-600 h-[95%] rounded-t-sm opacity-50"></div>
-                                         </div>
-                                         <!-- X Axis Line -->
-                                         <div class="h-px bg-white/10 mt-1"></div>
-                                     </div>
+                                    <!-- KPIs -->
+                                    <div id="ceo-kpis" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
 
-                                     <!-- Breakdown & Regional Sales -->
-                                     <div class="grid grid-cols-2 gap-4">
-                                         <!-- Donut Chart Simulation -->
-                                         <div class="bg-slate-800/30 p-3 rounded-xl border border-white/5">
-                                             <h4 class="text-[10px] font-bold text-slate-300 mb-3">Gider Dağılımı</h4>
-                                             <div class="relative w-24 h-24 mx-auto">
-                                                 <svg viewBox="0 0 36 36" class="w-full h-full rotate-[-90deg]">
-                                                     <!-- Ring Background -->
-                                                     <path class="text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.8" />
-                                                     <!-- Segment 1 (Blue) -->
-                                                     <path class="text-brand-500" stroke-dasharray="40, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.8" />
-                                                     <!-- Segment 2 (Purple) -->
-                                                     <path class="text-purple-500" stroke-dasharray="25, 100" stroke-dashoffset="-40" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.8" />
-                                                 </svg>
-                                                 <div class="absolute inset-0 flex items-center justify-center flex-col">
-                                                     <span class="text-xs font-bold text-white">40%</span>
-                                                     <span class="text-[8px] text-slate-400">Personel</span>
-                                                 </div>
-                                             </div>
-                                             <div class="mt-2 flex justify-center gap-2">
-                                                 <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-brand-500"></div><span class="text-[8px] text-slate-400">Personel</span></div>
-                                                 <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-purple-500"></div><span class="text-[8px] text-slate-400">Pazarlama</span></div>
-                                             </div>
-                                         </div>
+                                    <!-- Chart -->
+                                    <div class="rounded-xl bg-slate-800/40 border border-white/5 p-4 flex-1 min-h-[150px] flex flex-col">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 id="ceo-chart-title" class="text-xs font-bold text-slate-300">Nakit Akışı</h4>
+                                            <div class="flex items-center gap-3 text-[10px] text-slate-400">
+                                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm bg-brand-500"></span>Gerçekleşen</span>
+                                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-sm border border-dashed border-brand-400"></span>AI Tahmin</span>
+                                            </div>
+                                        </div>
+                                        <div id="ceo-bars" class="flex-1 flex items-end gap-2 sm:gap-3 min-h-[100px]"></div>
+                                        <div id="ceo-labels" class="flex gap-2 sm:gap-3 mt-1.5 text-[9px] text-slate-500 text-center"></div>
+                                    </div>
 
-                                         <!-- Top Products List -->
-                                         <div class="bg-slate-800/30 p-3 rounded-xl border border-white/5">
-                                             <h4 class="text-[10px] font-bold text-slate-300 mb-3">En Çok Satanlar</h4>
-                                             <div class="space-y-2">
-                                                 <div class="flex justify-between items-center text-[10px]">
-                                                     <span class="text-slate-300">Ürün A</span>
-                                                     <div class="flex items-center gap-1">
-                                                         <div class="w-12 h-1.5 bg-slate-700 rounded-full overflow-hidden"><div class="h-full bg-green-500 w-[80%]"></div></div>
-                                                         <span class="text-white">80%</span>
-                                                     </div>
-                                                 </div>
-                                                 <div class="flex justify-between items-center text-[10px]">
-                                                     <span class="text-slate-300">Ürün B</span>
-                                                     <div class="flex items-center gap-1">
-                                                         <div class="w-12 h-1.5 bg-slate-700 rounded-full overflow-hidden"><div class="h-full bg-green-500 w-[60%]"></div></div>
-                                                         <span class="text-white">60%</span>
-                                                     </div>
-                                                 </div>
-                                                 <div class="flex justify-between items-center text-[10px]">
-                                                     <span class="text-slate-300">Ürün C</span>
-                                                     <div class="flex items-center gap-1">
-                                                         <div class="w-12 h-1.5 bg-slate-700 rounded-full overflow-hidden"><div class="h-full bg-yellow-500 w-[45%]"></div></div>
-                                                         <span class="text-white">45%</span>
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-                                 
-                                 <!-- Footer Action -->
-                                 <div class="p-3 border-t border-white/5 bg-slate-900/50 flex justify-center">
-                                     <button class="text-xs text-brand-400 hover:text-white flex items-center gap-1 transition">
-                                         <i data-lucide="maximize-2" class="w-3 h-3"></i> Detaylı Raporu Aç (Power BI)
-                                     </button>
-                                 </div>
-                             </div>
+                                    <!-- Robot insight -->
+                                    <div id="ceo-insight-box" class="rounded-xl bg-brand-500/10 border border-brand-500/25 p-3.5 flex items-start gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-brand-600/30 flex items-center justify-center text-brand-300 shrink-0"><i data-lucide="bot" class="w-5 h-5"></i></div>
+                                        <div class="min-w-0">
+                                            <div class="text-[10px] font-bold tracking-wider text-brand-300 uppercase mb-0.5">Dijital CEO Önerisi</div>
+                                            <p class="text-sm text-slate-200 leading-relaxed min-h-[2.75rem]"><span id="ceo-insight"></span><span class="ceo-caret"></span></p>
+                                        </div>
+                                    </div>
+                                </main>
+                            </div>
 
+                            <!-- Robot cursor -->
+                            <div id="robot-cursor" aria-hidden="true">
+                                <svg class="rc-arrow" width="26" height="26" viewBox="0 0 24 24"><path d="M4 2 L4 20 L9 15.2 L12.4 22 L15.4 20.6 L12 13.9 L18.8 13.9 Z" fill="#ffffff" stroke="#1d4ed8" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                                <div class="rc-badge"><i data-lucide="bot" class="w-4 h-4"></i></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -562,7 +506,7 @@
                 <!-- Product Page Image Background -->
                 <div class="absolute top-0 left-0 w-full h-[600px] overflow-hidden -z-10">
                     <img src="images/WhatsApp Image 2025-12-30 at 16.11.32.jpeg" alt="Background" class="w-full h-full object-cover opacity-30 filter blur-sm">
-                    <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/90 to-[#020617]"></div>
+                    <div class="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/90 to-[#15406f]"></div>
                 </div>
 
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -790,78 +734,147 @@
                     <!-- Pricing Table -->
                     <div class="mb-24">
                         <div class="text-center mb-12">
+                            <div class="inline-block mb-4 px-4 py-1 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-400 text-xs font-bold tracking-widest uppercase backdrop-blur-md">Yıllık Paketler</div>
                             <h2 class="text-3xl font-bold text-white mb-4">Şeffaf Fiyatlandırma</h2>
-                            <p class="text-slate-400">İhtiyacınıza uygun paketi seçin, hemen başlayın.</p>
+                            <p class="text-slate-400">İhtiyacınız olan dijital yöneticiyi seçin, birden fazla pakette daha az ödeyin.</p>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                            <!-- Basic Plan -->
-                            <div class="glass-panel rounded-2xl p-8 border border-white/5 flex flex-col relative overflow-hidden">
-                                <h3 class="text-xl font-bold text-slate-300 mb-2">Basic</h3>
-                                <div class="text-4xl font-bold text-white mb-1">₺18.000</div>
-                                <div class="text-sm text-slate-500 mb-6">Aylık Ödeme (Yıllık 180.000 TL)</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+                            <!-- CFO Paketi -->
+                            <div class="glass-panel rounded-2xl p-7 border border-white/5 hover:border-brand-500/50 transition flex flex-col group">
+                                <div class="flex items-center gap-3 mb-5">
+                                    <div class="w-11 h-11 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="landmark" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <h3 class="text-2xl font-extrabold tracking-tight text-white leading-none">CFO</h3>
+                                        <div class="text-xs font-semibold uppercase tracking-wider text-brand-400 mt-1">Finans</div>
+                                    </div>
+                                </div>
+                                <div class="text-3xl font-bold text-white">₺125.000 <span class="text-base font-medium text-slate-400">+ KDV</span></div>
+                                <div class="text-sm text-slate-500 mb-6">Yıllık paket</div>
                                 <div class="w-full h-px bg-white/10 mb-6"></div>
-                                <ul class="space-y-4 mb-8 text-sm text-slate-300 flex-1">
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Finans ve Muhasebe</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Kasa / Banka / Cari</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Tahsilat & Satınalma</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Tedarikçi Yönetimi</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-brand-400"></i> Nakit Akış Yönetimi</li>
-                                    <li class="flex gap-3 text-slate-600"><i data-lucide="minus" class="w-5 h-5"></i> Satış & Pazarlama</li>
-                                    <li class="flex gap-3 text-slate-600"><i data-lucide="minus" class="w-5 h-5"></i> CRM & İK</li>
-                                    <li class="flex gap-3 border-t border-white/5 pt-3"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i> 2 Kullanıcı</li>
-                                    <li class="flex gap-3"><i data-lucide="layout" class="w-5 h-5 text-slate-400"></i> 10 Rapor Ekranı</li>
+                                <ul class="space-y-3.5 mb-8 text-sm text-slate-300 flex-1">
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>CFO Sağlık Kontrolü</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Nakit Akışı</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Tahsilat</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Maliyet ve Karlılık</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Tahmin Analizi</span></li>
+                                    <li class="flex gap-3 border-t border-white/5 pt-3.5 text-slate-400"><i data-lucide="user" class="w-5 h-5 shrink-0"></i> 2 Kullanıcı</li>
                                 </ul>
-                                <a href="https://wa.me/905320568570?text=Merhaba,%20Dijital%20CEO%20Basic%20paketi%20hakkında%20bilgi%20almak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg border border-slate-600 text-white hover:bg-white/5 transition inline-block text-center">Seç</a>
+                                <a href="https://wa.me/905320568570?text=Merhaba%2C%20Dijital%20CEO%20CFO%20paketi%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold transition inline-block text-center shadow-[0_0_15px_rgba(59,130,246,0.25)]">Seç</a>
                             </div>
-
-                            <!-- Premium Plan (Popular) -->
-                            <div class="glass-panel rounded-2xl p-8 border border-brand-500/50 flex flex-col relative overflow-hidden transform scale-105 shadow-2xl shadow-brand-500/20 z-10 bg-slate-900/80">
-                                <div class="absolute top-0 right-0 bg-brand-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">POPÜLER</div>
-                                <h3 class="text-xl font-bold text-brand-400 mb-2">Premium</h3>
-                                <div class="text-4xl font-bold text-white mb-1">₺35.000</div>
-                                <div class="text-sm text-slate-500 mb-6">Aylık Ödeme (Yıllık 360.000 TL)</div>
+                            <!-- COO Paketi -->
+                            <div class="glass-panel rounded-2xl p-7 border border-white/5 hover:border-brand-500/50 transition flex flex-col group">
+                                <div class="flex items-center gap-3 mb-5">
+                                    <div class="w-11 h-11 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="factory" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <h3 class="text-2xl font-extrabold tracking-tight text-white leading-none">COO</h3>
+                                        <div class="text-xs font-semibold uppercase tracking-wider text-brand-400 mt-1">Operasyon</div>
+                                    </div>
+                                </div>
+                                <div class="text-3xl font-bold text-white">₺125.000 <span class="text-base font-medium text-slate-400">+ KDV</span></div>
+                                <div class="text-sm text-slate-500 mb-6">Yıllık paket</div>
                                 <div class="w-full h-px bg-white/10 mb-6"></div>
-                                <ul class="space-y-4 mb-8 text-sm text-slate-200 flex-1">
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> <strong>Tüm Basic Özellikleri</strong></li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Satış Yönetimi</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Stok ve Lojistik</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Pazarlama</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Rekabet Analizi</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-green-400"></i> Bayi / Kanal Yönetimi</li>
-                                    <li class="flex gap-3 text-slate-600"><i data-lucide="minus" class="w-5 h-5"></i> CRM & İK</li>
-                                    <li class="flex gap-3 border-t border-white/5 pt-3"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i> 3 Kullanıcı</li>
-                                    <li class="flex gap-3"><i data-lucide="layout" class="w-5 h-5 text-slate-400"></i> 18 Rapor Ekranı</li>
+                                <ul class="space-y-3.5 mb-8 text-sm text-slate-300 flex-1">
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Üretim</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Satın Alma</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Tedarik</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Stok / Depo</span></li>
+                                    <li class="flex gap-3 border-t border-white/5 pt-3.5 text-slate-400"><i data-lucide="user" class="w-5 h-5 shrink-0"></i> 2 Kullanıcı</li>
                                 </ul>
-                                <a href="https://wa.me/905320568570?text=Merhaba,%20Dijital%20CEO%20Premium%20paketi%20ile%20hemen%20başlamak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white transition font-bold shadow-[0_0_15px_rgba(59,130,246,0.4)] inline-block text-center">Hemen Başla</a>
+                                <a href="https://wa.me/905320568570?text=Merhaba%2C%20Dijital%20CEO%20COO%20paketi%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold transition inline-block text-center shadow-[0_0_15px_rgba(59,130,246,0.25)]">Seç</a>
                             </div>
-
-                            <!-- Enterprise Plan -->
-                            <div class="glass-panel rounded-2xl p-8 border border-white/5 flex flex-col relative overflow-hidden">
-                                <h3 class="text-xl font-bold text-accent-400 mb-2">Enterprise</h3>
-                                <div class="text-4xl font-bold text-white mb-1">₺45.000</div>
-                                <div class="text-sm text-slate-500 mb-6">Aylık Ödeme (Yıllık 450.000 TL)</div>
+                            <!-- CRO Paketi -->
+                            <div class="glass-panel rounded-2xl p-7 border border-white/5 hover:border-brand-500/50 transition flex flex-col group">
+                                <div class="flex items-center gap-3 mb-5">
+                                    <div class="w-11 h-11 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <h3 class="text-2xl font-extrabold tracking-tight text-white leading-none">CRO</h3>
+                                        <div class="text-xs font-semibold uppercase tracking-wider text-brand-400 mt-1">Satış ve Gelir</div>
+                                    </div>
+                                </div>
+                                <div class="text-3xl font-bold text-white">₺125.000 <span class="text-base font-medium text-slate-400">+ KDV</span></div>
+                                <div class="text-sm text-slate-500 mb-6">Yıllık paket</div>
                                 <div class="w-full h-px bg-white/10 mb-6"></div>
-                                <ul class="space-y-4 mb-8 text-sm text-slate-300 flex-1">
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-accent-400"></i> <strong>Tüm Premium Özellikleri</strong></li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-accent-400"></i> CRM (Müşteri İlişkileri)</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-accent-400"></i> İnsan Kaynakları (İK)</li>
-                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 text-accent-400"></i> Üretim (MRP)</li>
-                                    <li class="flex gap-3 border-t border-white/5 pt-3"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i> 4 Kullanıcı</li>
-                                    <li class="flex gap-3"><i data-lucide="layout" class="w-5 h-5 text-slate-400"></i> 25 Rapor Ekranı</li>
+                                <ul class="space-y-3.5 mb-8 text-sm text-slate-300 flex-1">
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Müşteriler</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Satışçılar</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Satış Analizi</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Ciro ve Tahmin Analizi</span></li>
+                                    <li class="flex gap-3 border-t border-white/5 pt-3.5 text-slate-400"><i data-lucide="user" class="w-5 h-5 shrink-0"></i> 2 Kullanıcı</li>
                                 </ul>
-                                <a href="https://wa.me/905320568570?text=Merhaba,%20Dijital%20CEO%20Enterprise%20paketi%20için%20teklif%20almak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg border border-slate-600 text-white hover:bg-white/5 transition inline-block text-center">Teklif Al</a>
+                                <a href="https://wa.me/905320568570?text=Merhaba%2C%20Dijital%20CEO%20CRO%20paketi%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold transition inline-block text-center shadow-[0_0_15px_rgba(59,130,246,0.25)]">Seç</a>
+                            </div>
+                            <!-- CHRO Paketi -->
+                            <div class="glass-panel rounded-2xl p-7 border border-white/5 hover:border-brand-500/50 transition flex flex-col group">
+                                <div class="flex items-center gap-3 mb-5">
+                                    <div class="w-11 h-11 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center group-hover:scale-110 transition"><i data-lucide="users" class="w-5 h-5"></i></div>
+                                    <div>
+                                        <h3 class="text-2xl font-extrabold tracking-tight text-white leading-none">CHRO</h3>
+                                        <div class="text-xs font-semibold uppercase tracking-wider text-brand-400 mt-1">İnsan Kaynakları</div>
+                                    </div>
+                                </div>
+                                <div class="text-3xl font-bold text-white">₺125.000 <span class="text-base font-medium text-slate-400">+ KDV</span></div>
+                                <div class="text-sm text-slate-500 mb-6">Yıllık paket</div>
+                                <div class="w-full h-px bg-white/10 mb-6"></div>
+                                <ul class="space-y-3.5 mb-8 text-sm text-slate-300 flex-1">
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Personel Performans Analizi</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Churn Prediction <span class="text-slate-500">(İstifa edecek personel öngörüsü)</span></span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Gizli Kıdem Tazminatı Yükü</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Eksik Tebligatlardan Doğabilecek İş Mahkemeleri</span></li>
+                                    <li class="flex gap-3"><i data-lucide="check" class="w-5 h-5 shrink-0 text-brand-400"></i> <span>Fazla Mesai Performans Katkısı</span></li>
+                                    <li class="flex gap-3 border-t border-white/5 pt-3.5 text-slate-400"><i data-lucide="user" class="w-5 h-5 shrink-0"></i> 2 Kullanıcı</li>
+                                </ul>
+                                <a href="https://wa.me/905320568570?text=Merhaba%2C%20Dijital%20CEO%20CHRO%20paketi%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." target="_blank" class="w-full py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold transition inline-block text-center shadow-[0_0_15px_rgba(59,130,246,0.25)]">Seç</a>
                             </div>
                         </div>
-                        
-                        <div class="text-center mt-8 text-sm text-slate-500 max-w-2xl mx-auto">
-                            * İlave Rapor Ekranı birim fiyatı yıllık 5.000 TL’dir.
-                            * İlave Kullanıcı Lisansı yıllık 20.000 TL’dir.
-                            * İlave Özellik/Fonksiyon talebe göre ayrıca belirlenir.
-                            * Sözleşme yenilemelerinde (TÜFE + ÜFE) / 2 oranı geçerlidir.
-                            * Özel ve kurumsal projeler ayrıca fiyatlandırılır.
-                            * Fiyatlara KDV dahil değildir.
 
+                        <!-- Paket kombinasyon fiyatları -->
+                        <div class="max-w-7xl mx-auto mt-14 rounded-2xl bg-slate-900/50 border border-white/5 p-6 sm:p-8">
+                            <div class="text-center mb-8">
+                                <h3 class="text-2xl font-bold text-white">Birden Fazla Paket Alın, Kazanın</h3>
+                                <p class="text-sm text-slate-400 mt-1">Paketleri dilediğiniz gibi birleştirin. Tüm fiyatlar yıllıktır.</p>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                                <div class="glass-panel rounded-xl p-5 border border-white/5 hover:border-brand-500/50 transition relative">
+                                    
+                                    <div class="font-bold text-white">Tekli Paket</div>
+                                    <div class="text-xs text-slate-500 mb-3">1 paket</div>
+                                    <div class="text-2xl font-bold text-white">₺125.000 <span class="text-sm font-medium text-slate-400">+ KDV</span></div>
+                                    <div class="mt-3 text-xs text-slate-500">Paket başına</div>
+                                </div>
+                                <div class="glass-panel rounded-xl p-5 border border-white/5 hover:border-brand-500/50 transition relative">
+                                    
+                                    <div class="font-bold text-white">İkili Paket</div>
+                                    <div class="text-xs text-slate-500 mb-3">2 paket</div>
+                                    <div class="text-2xl font-bold text-white">₺240.000 <span class="text-sm font-medium text-slate-400">+ KDV</span></div>
+                                    <div class="inline-block mt-3 text-xs font-semibold px-2 py-0.5 rounded bg-green-500/10 text-green-400 border border-green-500/20">₺10.000 tasarruf</div>
+                                </div>
+                                <div class="glass-panel rounded-xl p-5 border border-white/5 hover:border-brand-500/50 transition relative">
+                                    
+                                    <div class="font-bold text-white">Üçlü Paket</div>
+                                    <div class="text-xs text-slate-500 mb-3">3 paket</div>
+                                    <div class="text-2xl font-bold text-white">₺345.000 <span class="text-sm font-medium text-slate-400">+ KDV</span></div>
+                                    <div class="inline-block mt-3 text-xs font-semibold px-2 py-0.5 rounded bg-green-500/10 text-green-400 border border-green-500/20">₺30.000 tasarruf</div>
+                                </div>
+                                <div class="rounded-xl p-5 bg-gradient-to-br from-brand-600 to-accent-500 text-white relative shadow-2xl shadow-brand-500/30">
+                                    <div class="absolute -top-3 left-5 bg-slate-950 border border-brand-500/50 text-brand-400 text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full">EN AVANTAJLI</div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-white">Full Paket</span>
+                                        <span class="inline-flex items-center gap-1 rounded-md bg-white text-brand-600 text-xs font-extrabold tracking-wider px-2 py-0.5"><i data-lucide="crown" class="w-3.5 h-3.5"></i>CEO</span>
+                                    </div>
+                                    <div class="text-xs text-blue-100 mb-3">CFO + COO + CRO + CHRO</div>
+                                    <div class="text-2xl font-bold text-white">₺440.000 <span class="text-sm font-medium text-blue-100">+ KDV</span></div>
+                                    <div class="inline-block mt-3 text-xs font-semibold px-2 py-0.5 rounded bg-white/15 text-white">₺60.000 tasarruf</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-8 text-sm text-slate-500 max-w-2xl mx-auto space-y-1">
+                            <p>* İlave Kullanıcı Lisansı yıllık 20.000 TL’dir.</p>
+                            <p>* İlave Özellik/Fonksiyon talebe göre ayrıca belirlenir.</p>
+                            <p>* Sözleşme yenilemelerinde (TÜFE + ÜFE) / 2 oranı geçerlidir.</p>
+                            <p>* Özel ve kurumsal projeler ayrıca fiyatlandırılır.</p>
+                            <p>* Fiyatlara KDV dahil değildir.</p>
                         </div>
                     </div>
                 </div>
@@ -2045,7 +2058,7 @@
 
                             <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto w-full">
                                 <!-- Without AI -->
-                                <div class="glass-panel p-8 rounded-2xl border-l-4 border-red-500 bg-black/40 backdrop-blur-md transform transition duration-500 hover:-translate-y-1">
+                                <div class="glass-panel p-8 rounded-2xl border-l-4 border-red-500 bg-white/10 backdrop-blur-md transform transition duration-500 hover:-translate-y-1">
                                     <div class="flex items-center gap-3 mb-4">
                                         <div class="p-2 bg-red-500/20 rounded-lg text-red-400"><i data-lucide="x-circle" class="w-6 h-6"></i></div>
                                         <h3 class="text-xl font-bold text-white">${data.without.title}</h3>
@@ -2093,6 +2106,271 @@
             
             window.open(whatsappUrl, '_blank');
         });
+    </script>
+    <!-- Dijital CEO Kontrol Paneli: robot imleç demosu -->
+    <script>
+    (function () {
+        const panel = document.getElementById('ceo-panel');
+        if (!panel) return;
+
+        const MONTHS = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu'];
+        const MODULES = {
+            cfo: {
+                code: 'CFO', area: 'Finans', icon: 'landmark',
+                subs: ['Sağlık Kontrolü', 'Nakit Akışı', 'Tahsilat', 'Maliyet & Karlılık', 'Tahmin Analizi'],
+                kpis: [
+                    { l: 'Finansal Sağlık Skoru', v: '82/100', d: '+6 puan', up: true },
+                    { l: 'Nakit Pozisyonu', v: '₺3,4M', d: '+%12', up: true },
+                    { l: 'Vadesi Geçen Alacak', v: '₺620K', d: '-%8', up: true }
+                ],
+                data: [42, 55, 48, 63, 70, 74, 82, 88],
+                insight: 'Önümüzdeki 45 günde ₺1,2M tahsilat bekleniyor. 3 müşterinin ödeme riski yüksek; bu hafta vade hatırlatması göndermenizi öneriyorum.'
+            },
+            coo: {
+                code: 'COO', area: 'Operasyon', icon: 'factory',
+                subs: ['Üretim', 'Satın Alma', 'Tedarik', 'Stok / Depo'],
+                kpis: [
+                    { l: 'Üretim Verimliliği', v: '%87', d: '+%4', up: true },
+                    { l: 'Ort. Tedarik Süresi', v: '6,2 gün', d: '-1,3 gün', up: true },
+                    { l: 'Kritik Stok Kalemi', v: '12', d: '+3', up: false }
+                ],
+                data: [60, 66, 58, 71, 76, 80, 84, 86],
+                insight: 'B hammaddesi 9 gün içinde kritik seviyeye iniyor. Şimdi sipariş verilirse tedarikçi fiyat avantajıyla %7 maliyet düşüşü sağlanır.'
+            },
+            cro: {
+                code: 'CRO', area: 'Satış ve Gelir', icon: 'trending-up',
+                subs: ['Müşteriler', 'Satışçılar', 'Satış Analizi', 'Ciro ve Tahmin'],
+                kpis: [
+                    { l: 'Aylık Ciro', v: '₺4,8M', d: '+%18', up: true },
+                    { l: 'Aktif Müşteri', v: '1.240', d: '+64', up: true },
+                    { l: 'Hedef Gerçekleşme', v: '%92', d: '+%5', up: true }
+                ],
+                data: [38, 46, 52, 57, 66, 72, 80, 91],
+                insight: 'Çeyrek sonu ciro tahmini ₺15,6M. 28 müşteride çapraz satış fırsatı var; en yüksek potansiyel ilk 5 müşteriye özel teklif hazırlanmalı.'
+            },
+            chro: {
+                code: 'CHRO', area: 'İnsan Kaynakları', icon: 'users',
+                subs: ['Performans', 'Churn Prediction', 'Kıdem Yükü', 'Tebligat Riski', 'Fazla Mesai'],
+                kpis: [
+                    { l: 'İstifa Riski Yüksek', v: '7 kişi', d: '-2', up: true },
+                    { l: 'Gizli Kıdem Yükü', v: '₺2,1M', d: '+%9', up: false },
+                    { l: 'Fazla Mesai Katkısı', v: '%64', d: '+%3', up: true }
+                ],
+                data: [70, 68, 74, 72, 77, 81, 79, 84],
+                insight: 'Satış ekibinde 3 kişinin 90 gün içinde ayrılma olasılığı %70’in üzerinde. 2 personelde eksik tebligat var; iş mahkemesi riskine karşı bu hafta tamamlanmalı.'
+            }
+        };
+        const ORDER = ['cfo', 'coo', 'cro', 'chro'];
+
+        const $ = (s) => panel.querySelector(s);
+        const cursor = $('#robot-cursor');
+        const status = $('#ceo-status');
+        let current = 'cfo', subIdx = 0;
+
+        // ---------- render ----------
+        function navButton(key, mobile) {
+            const m = MODULES[key];
+            const base = mobile
+                ? 'shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold border transition'
+                : 'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left border transition';
+            return `<button type="button" data-module="${key}" class="${base}">
+                        <span class="w-8 h-8 rounded-lg flex items-center justify-center ${mobile ? 'hidden' : ''} ceo-nav-icon"><i data-lucide="${m.icon}" class="w-4 h-4"></i></span>
+                        <span class="min-w-0"><span class="block text-sm font-extrabold">${m.code}</span>${mobile ? '' : `<span class="block text-[10px] opacity-70 truncate">${m.area}</span>`}</span>
+                    </button>`;
+        }
+        $('#ceo-nav').innerHTML = ORDER.map((k) => navButton(k, false)).join('');
+        $('#ceo-nav-mobile').innerHTML = ORDER.map((k) => navButton(k, true)).join('');
+
+        $('#ceo-bars').innerHTML = MONTHS.map((_, i) => `
+            <div class="flex-1 h-full flex flex-col justify-end items-center relative" data-bar="${i}">
+                <span class="ceo-bar-val text-[9px] font-bold text-brand-300 mb-1 opacity-0 transition-opacity"></span>
+                <div class="ceo-bar w-full rounded-t-md transition-all duration-700 ease-out ${i >= 6
+                    ? 'border-x border-t border-dashed border-brand-400/70 bg-brand-500/10'
+                    : 'bg-gradient-to-t from-brand-600 to-brand-400'}" style="height:4%"></div>
+            </div>`).join('');
+        $('#ceo-labels').innerHTML = MONTHS.map((m) => `<span class="flex-1">${m}</span>`).join('');
+
+        function paintNav() {
+            panel.querySelectorAll('[data-module]').forEach((b) => {
+                const on = b.dataset.module === current;
+                b.classList.toggle('bg-brand-600', on);
+                b.classList.toggle('text-white', on);
+                b.classList.toggle('border-brand-400/50', on);
+                b.classList.toggle('shadow-lg', on);
+                b.classList.toggle('shadow-brand-600/30', on);
+                b.classList.toggle('text-slate-300', !on);
+                b.classList.toggle('border-transparent', !on);
+                b.classList.toggle('hover:bg-white/5', !on);
+                const ic = b.querySelector('.ceo-nav-icon');
+                if (ic) { ic.classList.toggle('bg-white/20', on); ic.classList.toggle('bg-white/5', !on); }
+            });
+        }
+
+        function paintSubs() {
+            const m = MODULES[current];
+            $('#ceo-subs').innerHTML = m.subs.map((s, i) => `
+                <button type="button" data-sub="${i}" class="px-2.5 py-1 rounded-md text-[11px] font-semibold border transition ${i === subIdx
+                    ? 'bg-brand-500/20 text-brand-300 border-brand-500/40'
+                    : 'bg-white/5 text-slate-400 border-white/5 hover:text-white'}">${s}</button>`).join('');
+            $('#ceo-chart-title').textContent = m.subs[subIdx];
+            // her alt başlıkta grafiğe küçük, tutarlı bir varyasyon ver
+            const data = m.data.map((v, i) => Math.max(18, Math.min(98, v + ((i * 7 + subIdx * 11) % 13) - 6 * (subIdx ? 1 : 0))));
+            panel.querySelectorAll('[data-bar]').forEach((col, i) => {
+                col.querySelector('.ceo-bar').style.height = data[i] + '%';
+                col.querySelector('.ceo-bar-val').textContent = data[i];
+            });
+        }
+
+        function paintKpis() {
+            $('#ceo-kpis').innerHTML = MODULES[current].kpis.map((k, i) => `
+                <div data-kpi="${i}" class="rounded-xl bg-slate-800/40 border border-white/5 p-3 transition animate-fade-in">
+                    <div class="text-[10px] text-slate-400 mb-1">${k.l}</div>
+                    <div class="text-lg font-bold text-white leading-tight">${k.v}</div>
+                    <div class="text-[10px] mt-0.5 flex items-center gap-1 ${k.up ? 'text-green-400' : 'text-amber-400'}">
+                        <i data-lucide="${k.up ? 'trending-up' : 'alert-triangle'}" class="w-3 h-3"></i>${k.d}
+                    </div>
+                </div>`).join('');
+        }
+
+        let typeTimer = null;
+        function typeInsight(text, instant) {
+            clearInterval(typeTimer);
+            const el = $('#ceo-insight');
+            if (instant) { el.textContent = text; return Promise.resolve(); }
+            el.textContent = '';
+            let i = 0;
+            return new Promise((res) => {
+                typeTimer = setInterval(() => {
+                    el.textContent = text.slice(0, ++i);
+                    if (i >= text.length) { clearInterval(typeTimer); res(); }
+                }, 16);
+            });
+        }
+
+        function selectModule(key) {
+            current = key; subIdx = 0;
+            const m = MODULES[key];
+            $('#ceo-title').textContent = m.code;
+            $('#ceo-area').textContent = m.area;
+            paintNav(); paintSubs(); paintKpis();
+            typeInsight(m.insight, true);
+            lucide.createIcons();
+        }
+        function selectSub(i) { subIdx = i; paintSubs(); }
+
+        panel.addEventListener('click', (e) => {
+            const mod = e.target.closest('[data-module]');
+            if (mod) { selectModule(mod.dataset.module); return; }
+            const sub = e.target.closest('[data-sub]');
+            if (sub) selectSub(Number(sub.dataset.sub));
+        });
+
+        selectModule('cfo');
+
+        // ---------- robot cursor ----------
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+        let runId = 0, inView = true;
+        new IntersectionObserver((en) => { inView = en[0].isIntersecting; }).observe(panel);
+
+        const visibleEl = (sel) => [...panel.querySelectorAll(sel)].find((el) => el.offsetParent !== null);
+        function moveTo(el, ms = 900) {
+            if (!el) return wait(0);
+            const p = panel.getBoundingClientRect(), r = el.getBoundingClientRect();
+            const x = r.left - p.left + Math.min(r.width * 0.6, r.width - 6);
+            const y = r.top - p.top + r.height * 0.55;
+            cursor.style.transitionDuration = ms + 'ms';
+            cursor.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+            return wait(ms + 60);
+        }
+        async function press(el) {
+            cursor.classList.add('is-clicking');
+            const rip = document.createElement('span');
+            rip.className = 'robot-ripple';
+            cursor.appendChild(rip);
+            setTimeout(() => rip.remove(), 650);
+            el.click();
+            await wait(200);
+            cursor.classList.remove('is-clicking');
+        }
+
+        async function run(id) {
+            const alive = () => id === runId;
+            let mi = ORDER.indexOf(current);
+            while (alive()) {
+                if (!inView || panel.offsetParent === null) { await wait(600); continue; }
+                const m = MODULES[current];
+
+                status.textContent = `${m.code} modülünde alt başlıklar inceleniyor…`;
+                const subs = [...panel.querySelectorAll('[data-sub]')];
+                const sub = subs[1 + Math.floor(Math.random() * (subs.length - 1))];
+                await moveTo(sub, 750); if (!alive()) return;
+                await press(sub); await wait(500); if (!alive()) return;
+
+                status.textContent = 'Kritik göstergeler kontrol ediliyor…';
+                const kpi = visibleEl(`[data-kpi="${Math.floor(Math.random() * 3)}"]`);
+                await moveTo(kpi, 700); if (!alive()) return;
+                kpi.classList.add('ring-2', 'ring-brand-400/60', 'bg-brand-500/10');
+                await wait(900);
+                kpi.classList.remove('ring-2', 'ring-brand-400/60', 'bg-brand-500/10');
+                if (!alive()) return;
+
+                status.textContent = 'AI tahmini hesaplanıyor…';
+                const bar = visibleEl('[data-bar="7"]');
+                await moveTo(bar, 700); if (!alive()) return;
+                panel.querySelectorAll('.ceo-bar-val').forEach((v) => v.classList.add('opacity-100'));
+                await wait(1000);
+                panel.querySelectorAll('.ceo-bar-val').forEach((v) => v.classList.remove('opacity-100'));
+                if (!alive()) return;
+
+                status.textContent = 'Öneri yazılıyor…';
+                await moveTo(visibleEl('#ceo-insight-box'), 800); if (!alive()) return;
+                await typeInsight(m.insight); if (!alive()) return;
+                await wait(2200); if (!alive()) return;
+
+                mi = (ORDER.indexOf(current) + 1) % ORDER.length;
+                const next = ORDER[mi];
+                status.textContent = `${MODULES[next].code} modülüne geçiliyor…`;
+                const btn = visibleEl(`[data-module="${next}"]`);
+                await moveTo(btn, 900); if (!alive()) return;
+                await press(btn); await wait(700);
+            }
+        }
+
+        function start() {
+            if (reduceMotion) { cursor.style.display = 'none'; return; }
+            const id = ++runId;
+            cursor.classList.remove('is-parked');
+            run(id);
+        }
+        function stop(msg) {
+            runId++;
+            clearInterval(typeTimer);
+            typeInsight(MODULES[current].insight, true);
+            cursor.classList.add('is-parked');
+            if (msg) status.textContent = msg;
+        }
+
+        // Ziyaretçi panelde tıklayınca kontrol ona geçer; 8 sn hareketsizlikten sonra robot devam eder
+        let resumeTimer = null, userControl = false;
+        function scheduleResume() {
+            clearTimeout(resumeTimer);
+            resumeTimer = setTimeout(() => { userControl = false; start(); }, 8000);
+        }
+        panel.addEventListener('pointerdown', (e) => {
+            if (!e.isTrusted) return;
+            if (!userControl) { userControl = true; stop('Kontrol sizde, modüllere tıklayarak inceleyin'); }
+            scheduleResume();
+        });
+        panel.addEventListener('pointermove', (e) => { if (userControl && e.isTrusted) scheduleResume(); });
+
+        // Başlangıç: imleci panelin ortasına koy, sonra başla
+        requestAnimationFrame(() => {
+            cursor.style.transitionDuration = '0ms';
+            cursor.style.transform = `translate3d(${panel.clientWidth * 0.55}px, ${panel.clientHeight * 0.5}px, 0)`;
+            setTimeout(start, 900);
+        });
+    })();
     </script>
 </body>
 </html>

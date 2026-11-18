@@ -1,0 +1,13 @@
+{
+  "name": "aithink",
+  "version": "1.0.0",
+  "private": true,
+  "description": "aithink.com.tr - Dijital CEO web sitesi",
+  "scripts": {
+    "dev": "live-server --port=5500 --open=index.html --no-css-inject",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
